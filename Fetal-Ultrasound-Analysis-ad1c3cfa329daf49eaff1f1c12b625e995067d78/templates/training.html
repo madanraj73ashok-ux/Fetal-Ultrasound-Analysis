@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training Dashboard — Fetal Ultrasound Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#081414;--panel:#102020;--panel-2:#142929;
+  --border:rgba(110,231,213,0.16);--text:#e8fbfb;--muted:#91b8b8;
+  --primary:#2dd4bf;--primary-dark:#0f766e;--warning:#f6c453;
+  --danger:#ef6b6b;--ok:#38d996;
+  --shadow:0 18px 60px rgba(0,0,0,0.35);
+  font-family:'DM Sans',Inter,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:radial-gradient(circle at top left,#123737,var(--bg) 42%);color:var(--text)}
+
+/* Navbar */
+.navbar{background:rgba(10,40,40,0.95);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.navbar .inner{max-width:1280px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.nav-brand{display:flex;align-items:center;gap:10px;color:#fff;font-family:'DM Serif Display',serif;font-size:1.1rem;text-decoration:none;padding:14px 0}
+.nav-brand svg{flex-shrink:0}
+.nav-links{display:flex;gap:4px;list-style:none;flex-wrap:wrap}
+.nav-links a{color:rgba(255,255,255,.7);text-decoration:none;padding:14px 14px;font-size:.82rem;font-weight:600;border-bottom:3px solid transparent;transition:.3s ease}
+.nav-links a:hover,.nav-links a.active{color:#fff;border-bottom-color:var(--primary)}
+
+.shell{max-width:1280px;margin:0 auto;padding:28px 20px 44px}
+.topbar{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:24px;flex-wrap:wrap}
+.brand h1{font-size:clamp(1.45rem,2vw,2.2rem)}
+.brand p{color:var(--muted);margin-top:6px}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text);text-decoration:none;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:.85rem}
+.btn.primary{background:var(--primary-dark);border-color:rgba(45,212,191,0.5)}
+.btn.danger{color:#ffdede;border-color:rgba(239,107,107,0.45)}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:1.25fr 0.75fr;gap:18px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.card,.panel{background:linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.02));border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow)}
+.card{min-height:112px;padding:18px}
+.label{color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:.72rem;font-weight:800}
+.value{font-size:1.75rem;margin-top:12px;color:var(--primary);font-weight:900}
+.panel{padding:18px;margin-bottom:18px}
+.panel h2{font-size:1rem;margin-bottom:14px}
+.progress-track{height:16px;background:#071010;border-radius:999px;overflow:hidden;border:1px solid var(--border)}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--primary-dark),var(--primary));transition:width .35s ease}
+.status-line{display:flex;justify-content:space-between;gap:12px;margin-top:12px;color:var(--muted);flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:rgba(45,212,191,0.1);color:var(--primary);font-weight:800}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.dot.running{background:var(--warning);box-shadow:0 0 18px rgba(246,196,83,0.8)}
+.dot.done{background:var(--ok);box-shadow:0 0 18px rgba(56,217,150,0.7)}
+.dot.error{background:var(--danger);box-shadow:0 0 18px rgba(239,107,107,0.7)}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.chart-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px;min-height:230px}
+.chart-card h3{font-size:.9rem;margin-bottom:10px;color:var(--muted)}
+canvas{width:100%;height:170px;display:block}
+.artifacts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.artifact{display:none}
+.artifact.visible{display:block}
+.artifact img{width:100%;border-radius:8px;border:1px solid var(--border);background:#fff}
+.logbox{height:360px;overflow:auto;background:#050b0b;border:1px solid var(--border);border-radius:8px;padding:12px;color:#c9f7ef;font-family:Consolas,monospace;font-size:.8rem;white-space:pre-wrap}
+.hint{color:var(--muted);line-height:1.6}
+.success{color:var(--ok);font-weight:900}
+.disclaimer{background:rgba(224,160,48,.12);border:1px solid rgba(224,160,48,.3);border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:.8rem;color:#c9a84a;text-align:center}
+@media(max-width:980px){.grid{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.cards,.charts,.artifacts{grid-template-columns:1fr}.shell{padding:20px 12px}}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+ <div class="inner">
+  <a href="/" class="nav-brand">
+   <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="#2dd4bf" stroke-width="2"/><line x1="14" y1="7" x2="14" y2="21" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><line x1="7" y1="14" x2="21" y2="14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
+   FetalNet AI
+  </a>
+  <ul class="nav-links">
+   <li><a href="/">Home</a></li>
+   <li><a href="/#predict">Prediction</a></li>
+   <li><a href="/#evaluation">Evaluation</a></li>
+   <li><a href="/training" class="active">Training</a></li>
+   <li><a href="/#dataset">Dataset</a></li>
+   <li><a href="/#about">About</a></li>
+  </ul>
+ </div>
+</nav>
+
+<main class="shell">
+  <div class="disclaimer">⚕️ This system is for educational and research demonstration only. It is not for clinical diagnosis.</div>
+
+  <header class="topbar">
+    <div class="brand">
+      <h1>YOLOv8 Training Dashboard</h1>
+      <p>Automated Fetal Ultrasound Analysis — Deep Learning Training Manager</p>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="btnStart">Start Training</button>
+      <button class="btn danger" id="btnStop">Stop Training</button>
+      <button class="btn" id="btnOpen">Open Results Folder</button>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="pill"><span class="dot" id="statusDot"></span><span id="statusText">Loading status...</span></div>
+    <div class="progress-track" style="margin-top:16px"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="status-line">
+      <span id="epochText">Epoch 0 / 50</span>
+      <span id="gpuText">Device: checking...</span>
+      <span id="completeText"></span>
+    </div>
+  </section>
+
+  <section class="cards">
+    <div class="card"><div class="label">Loss</div><div class="value" id="lossValue">--</div></div>
+    <div class="card"><div class="label">Precision</div><div class="value" id="precisionValue">--</div></div>
+    <div class="card"><div class="label">Recall</div><div class="value" id="recallValue">--</div></div>
+    <div class="card"><div class="label">mAP50</div><div class="value" id="mapValue">--</div></div>
+  </section>
+
+  <div class="grid">
+    <section>
+      <div class="panel">
+        <h2>Live Graphs</h2>
+        <div class="charts">
+          <div class="chart-card"><h3>Loss Curve</h3><canvas id="lossChart"></canvas></div>
+          <div class="chart-card"><h3>Precision Curve</h3><canvas id="precisionChart"></canvas></div>
+          <div class="chart-card"><h3>Recall Curve</h3><canvas id="recallChart"></canvas></div>
+          <div class="chart-card"><h3>F1 Curve</h3><canvas id="f1Chart"></canvas></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Generated Result Images</h2>
+        <div class="artifacts">
+          <div class="artifact" id="artifactResults"><img alt="YOLO results plot"></div>
+          <div class="artifact" id="artifactPR"><img alt="PR curve"></div>
+          <div class="artifact" id="artifactF1"><img alt="F1 curve"></div>
+          <div class="artifact" id="artifactConfusion"><img alt="Confusion matrix"></div>
+        </div>
+        <p class="hint" id="artifactHint">Result images appear here after YOLO creates them.</p>
+      </div>
+    </section>
+    <aside>
+      <div class="panel">
+        <h2>Training Logs</h2>
+        <div class="logbox" id="logs">Waiting for logs...</div>
+      </div>
+      <div class="panel">
+        <h2>Output Paths</h2>
+        <p class="hint">Best model: <br><strong id="bestPath">runs/detect/train/weights/best.pt</strong></p>
+        <p class="hint" style="margin-top:10px">Last model: <br><strong id="lastPath">runs/detect/train/weights/last.pt</strong></p>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+const fmt = (v, s='') => v === null || v === undefined ? '--' : `${v}${s}`;
+
+async function postAction(url) {
+  const r = await fetch(url, {method:'POST'});
+  const d = await r.json().catch(()=>({}));
+  if (!r.ok) alert(d.message || 'Action failed');
+  await refreshStatus();
+}
+
+function drawChart(id, history, key, color) {
+  const canvas = document.getElementById(id);
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = Math.max(320, Math.floor(rect.width * devicePixelRatio));
+  canvas.height = Math.floor(170 * devicePixelRatio);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  const w = canvas.width/devicePixelRatio, h = canvas.height/devicePixelRatio;
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle = 'rgba(145,184,184,0.24)'; ctx.lineWidth = 1;
+  for (let i=0;i<4;i++){const y=18+i*((h-36)/3);ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  const pts = history.filter(r=>r[key]!=null);
+  if (pts.length<2) return;
+  const vals = pts.map(r=>Number(r[key]));
+  const mn=Math.min(...vals), mx=Math.max(...vals), sp=mx-mn||1;
+  ctx.strokeStyle=color; ctx.lineWidth=2.5; ctx.beginPath();
+  pts.forEach((r,i)=>{const x=(i/(pts.length-1))*(w-16)+8;const y=h-18-((Number(r[key])-mn)/sp)*(h-36);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.stroke();
+}
+
+function setArtifact(id, url) {
+  const n = document.getElementById(id);
+  if (!url){n.classList.remove('visible');return false;}
+  n.querySelector('img').src = `${url}?t=${Date.now()}`;
+  n.classList.add('visible'); return true;
+}
+
+async function refreshStatus() {
+  const r = await fetch('/training/status');
+  const d = await r.json();
+  document.getElementById('statusText').textContent = d.message || 'Training idle.';
+  document.getElementById('statusDot').className = 'dot '+(d.running?'running':d.success?'done':d.completed?'error':'');
+  document.getElementById('progressFill').style.width = `${d.progress||0}%`;
+  document.getElementById('epochText').textContent = `Epoch ${d.epoch||0} / ${d.epochs||50}`;
+  const g = d.gpu||{};
+  document.getElementById('gpuText').textContent = g.cuda?`GPU: ${g.name} (${g.vram_gb} GB)`:'Device: CPU';
+  document.getElementById('completeText').innerHTML = d.success?'<span class="success">Training completed successfully.</span>':'';
+  document.getElementById('lossValue').textContent = fmt(d.loss);
+  document.getElementById('precisionValue').textContent = fmt(d.precision,'%');
+  document.getElementById('recallValue').textContent = fmt(d.recall,'%');
+  document.getElementById('mapValue').textContent = fmt(d.map50,'%');
+  document.getElementById('bestPath').textContent = d.best_model||'runs/detect/train/weights/best.pt';
+  document.getElementById('lastPath').textContent = d.last_model||'runs/detect/train/weights/last.pt';
+  document.getElementById('logs').textContent = (d.logs||[]).join('\n')||'Waiting for logs...';
+  document.getElementById('btnStart').disabled = d.running;
+  document.getElementById('btnStop').disabled = !d.running;
+  const h = d.history||[];
+  drawChart('lossChart',h,'loss','#2dd4bf');
+  drawChart('precisionChart',h,'precision','#38d996');
+  drawChart('recallChart',h,'recall','#f6c453');
+  drawChart('f1Chart',h,'f1','#8ab4ff');
+  const a = d.artifacts||{};
+  const shown = [setArtifact('artifactResults',a.results),setArtifact('artifactPR',a.pr),setArtifact('artifactF1',a.f1),setArtifact('artifactConfusion',a.confusion)].some(Boolean);
+  document.getElementById('artifactHint').style.display = shown?'none':'block';
+}
+
+document.getElementById('btnStart').addEventListener('click',()=>postAction('/training/start'));
+document.getElementById('btnStop').addEventListener('click',()=>postAction('/training/stop'));
+document.getElementById('btnOpen').addEventListener('click',()=>postAction('/training/open-results'));
+refreshStatus();
+setInterval(refreshStatus, 5000);
+</script>
+</body>
+</html>

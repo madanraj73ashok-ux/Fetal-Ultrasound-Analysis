@@ -1,6 +1,64 @@
+# ============================================================
+# .gitignore — Fetal Image Analysis Project
+# ============================================================
+
+# Python
 __pycache__/
 *.pyc
-.ipynb_checkpoints/
-.DS_Store
-*.zip
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# YOLO training runs (large outputs)
+runs/
+
+# Dataset (large, download separately)
 dataset/
+dataset_cls/
+data/
+
+# Model weights (large binary files)
+# best.pt                # Uncomment if your model is too large for git
+*.onnx
+*.engine
+
+# Environment variables
+.env
+
+# Uploaded images (server temp)
+uploads/
+static/uploads/
+
+# Log files
+*.log
+*.err.log
+flask_server_current.*
+training.log
+training_status.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Archives
+*.zip
+*.tar.gz
+
+# Generated presentations
+*.pptx

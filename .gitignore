@@ -1,3 +1,13 @@
+# Root gitignore
 *.log
 *.err.log
 flask_server_current.*
+.venv/
+venv/
+__pycache__/
+*.pyc
+runs/
+dataset/
+dataset_cls/
+.env
+*.pptx

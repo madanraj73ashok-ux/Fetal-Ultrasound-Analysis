@@ -3,1162 +3,147 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fetal Ultrasound Analysis</title>
+<title>Fetal Ultrasound Analysis — YOLOv8 Deep Learning</title>
 <meta name="description" content="AI-Powered Prenatal Diagnostic Assistant using YOLOv8 Deep Learning for fetal ultrasound image classification.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<style>
-/* ============================================================
-   FETAL IMAGE ANALYSIS DEMO — CSS
-   Design Direction: "Clinical Precision"
-   ============================================================ */
-
-/* ── RESET & BASE ─────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --primary: #0D6E6E;
-  --primary-dark: #0A4F4F;
-  --primary-light: #1A8F8F;
-  --accent: #00C9A7;
-  --danger: #E05C5C;
-  --warning: #E0A030;
-  --bg: #F0F4F4;
-  --card: #FFFFFF;
-  --text: #1A2B2B;
-  --muted: #6B8F8F;
-  --border: #D4E0E0;
-  --shadow: 0 2px 16px rgba(10, 79, 79, 0.08);
-  --shadow-lg: 0 8px 32px rgba(10, 79, 79, 0.12);
-  --radius: 12px;
-  --radius-sm: 8px;
-  --font-display: 'DM Serif Display', Georgia, serif;
-  --font-body: 'DM Sans', -apple-system, sans-serif;
-  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: var(--font-body);
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ── UTILITY ──── */
-.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
-
-/* ── ANIMATIONS ────────────────────────── */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(32px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: .6; transform: scale(1.3); }
-}
-@keyframes barFill {
-  from { width: 0; }
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-@keyframes borderPulse {
-  0%, 100% { border-color: var(--primary); }
-  50% { border-color: var(--accent); }
-}
-@keyframes countUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.anim-fade-up { animation: fadeInUp 0.6s var(--transition) both; }
-.anim-delay-1 { animation-delay: 0.1s; }
-.anim-delay-2 { animation-delay: 0.2s; }
-.anim-delay-3 { animation-delay: 0.3s; }
-.anim-delay-4 { animation-delay: 0.4s; }
-.anim-delay-5 { animation-delay: 0.5s; }
-
-/* ── HEADER ────────────────────────────── */
-.header {
-  background: var(--primary-dark);
-  position: relative;
-  overflow: hidden;
-  animation: fadeIn 0.8s ease both;
-}
-.header::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-}
-.header-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 0;
-  position: relative;
-  z-index: 1;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.header-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #fff;
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  text-decoration: none;
-  white-space: nowrap;
-}
-.header-logo svg { flex-shrink: 0; }
-.header-center {
-  text-align: center;
-  flex: 1;
-  min-width: 200px;
-}
-.header-title {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  color: #fff;
-  letter-spacing: 0.5px;
-}
-.header-subtitle {
-  font-size: 0.82rem;
-  color: rgba(255,255,255,0.65);
-  margin-top: 2px;
-}
-.header-badge {
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.18);
-  color: rgba(255,255,255,0.8);
-  padding: 5px 14px;
-  border-radius: 20px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  white-space: nowrap;
-  letter-spacing: 0.3px;
-}
-.mode-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
-}
-.mode-toggle label {
-  color: rgba(255,255,255,0.7);
-  font-size: 0.75rem;
-  cursor: pointer;
-}
-.mode-switch {
-  position: relative;
-  width: 44px;
-  height: 24px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: var(--transition);
-  border: none;
-  outline: none;
-}
-.mode-switch.active { background: var(--accent); }
-.mode-switch::after {
-  content: '';
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
-  background: #fff;
-  border-radius: 50%;
-  transition: var(--transition);
-}
-.mode-switch.active::after { left: 23px; }
-.mode-badge {
-  font-size: 0.68rem;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-weight: 600;
-}
-.mode-badge.demo { background: var(--warning); color: #fff; }
-.mode-badge.api { background: var(--accent); color: var(--primary-dark); }
-
-/* ── HERO ──────────────────────────────── */
-.hero {
-  padding: 40px 0;
-}
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  align-items: start;
-}
-
-/* ── UPLOAD PANEL ─────────────────────── */
-.panel {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-.panel-header {
-  padding: 16px 24px;
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  color: var(--primary-dark);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.panel-body { padding: 24px; }
-
-.upload-zone {
-  border: 2px dashed var(--border);
-  border-radius: var(--radius);
-  padding: 40px 24px;
-  text-align: center;
-  cursor: pointer;
-  transition: var(--transition);
-  position: relative;
-  background: rgba(13, 110, 110, 0.02);
-}
-.upload-zone:hover, .upload-zone.dragover {
-  border-color: var(--primary);
-  background: rgba(13, 110, 110, 0.05);
-  animation: borderPulse 2s infinite;
-}
-.upload-zone svg { margin-bottom: 12px; }
-.upload-zone-text {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 4px;
-}
-.upload-zone-sub {
-  font-size: 0.82rem;
-  color: var(--muted);
-}
-.upload-input { display: none; }
-.btn-browse {
-  display: inline-block;
-  margin-top: 16px;
-  padding: 10px 28px;
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: 24px;
-  font-size: 0.88rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-  font-family: var(--font-body);
-}
-.btn-browse:hover { background: var(--primary-dark); transform: translateY(-1px); }
-
-/* Preview */
-.preview-area { display: none; margin-top: 16px; }
-.preview-area.visible { display: block; animation: fadeInUp 0.4s ease both; }
-.preview-img-wrap {
-  position: relative;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  border: 1px solid var(--border);
-}
-.preview-img-wrap img {
-  width: 100%;
-  display: block;
-  max-height: 280px;
-  object-fit: contain;
-  background: #f5f5f5;
-}
-.btn-remove-img {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 28px;
-  height: 28px;
-  background: rgba(224, 92, 92, 0.9);
-  border: none;
-  border-radius: 50%;
-  color: #fff;
-  font-size: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition);
-}
-.btn-remove-img:hover { background: var(--danger); transform: scale(1.1); }
-.preview-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 8px;
-  font-size: 0.78rem;
-  color: var(--muted);
-}
-
-.btn-analyze {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  margin-top: 20px;
-  padding: 14px;
-  background: var(--primary-dark);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: 1.05rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-  font-family: var(--font-body);
-  letter-spacing: 0.4px;
-}
-.btn-analyze:hover:not(:disabled) { background: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(13,110,110,0.3); }
-.btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; }
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 2.5px solid rgba(255,255,255,0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  display: none;
-}
-.btn-analyze.loading .spinner { display: block; }
-.btn-analyze.loading .btn-text { display: none; }
-
-/* ── RESULT PANEL ─────────────────────── */
-.control-card {
-  margin-bottom: 16px;
-  padding: 16px;
-  background: rgba(13,110,110,0.04);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-}
-.field-label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 0.72rem;
-  color: var(--muted);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-}
-.select-input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: #fff;
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-}
-.camera-card {
-  margin-top: 18px;
-  padding-top: 18px;
-  border-top: 1px solid var(--border);
-}
-.camera-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 10px 14px;
-  border: 1.5px solid var(--primary);
-  border-radius: var(--radius-sm);
-  background: #fff;
-  color: var(--primary);
-  font-family: var(--font-body);
-  font-size: 0.88rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-}
-.btn-secondary:hover:not(:disabled) { background: rgba(13,110,110,0.08); }
-.btn-secondary.danger { border-color: var(--danger); color: var(--danger); }
-.btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
-.video-wrap {
-  display: none;
-  margin-top: 14px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: #102020;
-}
-.video-wrap.visible { display: block; }
-.video-wrap video {
-  display: block;
-  width: 100%;
-  max-height: 260px;
-  object-fit: cover;
-}
-.live-status {
-  margin-top: 8px;
-  font-size: 0.78rem;
-  color: var(--muted);
-}
-.invalid-note {
-  display: none;
-  margin-bottom: 12px;
-  padding: 10px 12px;
-  border: 1px solid rgba(224,92,92,0.35);
-  border-radius: var(--radius-sm);
-  background: rgba(224,92,92,0.09);
-  color: var(--danger);
-  font-size: 0.86rem;
-  font-weight: 600;
-}
-.invalid-note.visible { display: block; }
-
-.result-placeholder {
-  text-align: center;
-  padding: 60px 24px;
-  color: var(--muted);
-}
-.result-placeholder svg { margin-bottom: 16px; opacity: 0.3; }
-.result-placeholder p { font-size: 0.95rem; }
-.result-content { display: none; }
-.result-content.visible { display: block; }
-
-/* Result cards */
-.result-card {
-  background: var(--bg);
-  border-radius: var(--radius-sm);
-  padding: 20px;
-  margin-bottom: 16px;
-  animation: slideInRight 0.5s ease both;
-}
-.result-card:nth-child(2) { animation-delay: 0.1s; }
-.result-card:nth-child(3) { animation-delay: 0.2s; }
-.result-card:nth-child(4) { animation-delay: 0.3s; }
-
-.result-card-label {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--muted);
-  margin-bottom: 10px;
-  font-weight: 600;
-}
-
-/* Detection card */
-.detection-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.detection-icon {
-  width: 56px;
-  height: 56px;
-  background: var(--primary);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.detection-icon svg { width: 28px; height: 28px; }
-.detection-info { flex: 1; }
-.detection-class {
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-  color: var(--primary-dark);
-  line-height: 1.2;
-}
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 14px;
-  border-radius: 20px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  margin-top: 6px;
-  letter-spacing: 0.5px;
-}
-.status-badge.normal { background: rgba(0,201,167,0.12); color: #00896e; }
-.status-badge.abnormal { background: rgba(224,92,92,0.12); color: var(--danger); }
-.status-badge.uncertain { background: rgba(224,160,48,0.12); color: var(--warning); }
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  animation: pulse 1.8s infinite;
-}
-.status-badge.normal .status-dot { background: var(--accent); }
-.status-badge.abnormal .status-dot { background: var(--danger); }
-.status-badge.uncertain .status-dot { background: var(--warning); }
-
-/* Confidence bar */
-.conf-bar-wrap {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.conf-bar-track {
-  flex: 1;
-  height: 12px;
-  background: #d9e6e6;
-  border-radius: 6px;
-  overflow: hidden;
-}
-.conf-bar-fill {
-  height: 100%;
-  border-radius: 6px;
-  transition: width 1s cubic-bezier(0.25, 0.8, 0.25, 1);
-  width: 0;
-}
-.conf-bar-fill.high { background: var(--accent); }
-.conf-bar-fill.med { background: var(--warning); }
-.conf-bar-fill.low { background: var(--danger); }
-.conf-value {
-  font-family: var(--font-display);
-  font-size: 1.6rem;
-  color: var(--primary-dark);
-  min-width: 65px;
-  text-align: right;
-}
-
-/* Top-K */
-.topk-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(13,110,110,0.06);
-  animation: fadeInUp 0.4s ease both;
-}
-.topk-row:last-child { border-bottom: none; }
-.topk-rank {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--muted);
-  width: 20px;
-}
-.topk-name { flex: 1; font-size: 0.88rem; font-weight: 500; }
-.topk-bar {
-  width: 80px;
-  height: 6px;
-  background: #d9e6e6;
-  border-radius: 3px;
-  overflow: hidden;
-}
-.topk-bar-fill {
-  height: 100%;
-  background: var(--primary);
-  border-radius: 3px;
-  transition: width 0.8s ease;
-  width: 0;
-}
-.topk-conf {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--muted);
-  min-width: 42px;
-  text-align: right;
-}
-
-/* Clinical note */
-.clinical-note {
-  border-left: 4px solid var(--primary);
-  padding: 14px 18px;
-  background: rgba(13,110,110,0.04);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  font-size: 0.88rem;
-  line-height: 1.65;
-  color: var(--text);
-}
-.clinical-disclaimer {
-  font-size: 0.72rem;
-  color: var(--muted);
-  margin-top: 10px;
-  font-style: italic;
-}
-
-.matrix-wrap {
-  display: grid;
-  grid-template-columns: 86px 1fr 1fr;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background: #fff;
-}
-.matrix-cell {
-  min-height: 58px;
-  padding: 10px;
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2px;
-}
-.matrix-cell:nth-child(3n) { border-right: none; }
-.matrix-cell:nth-last-child(-n+3) { border-bottom: none; }
-.matrix-head {
-  background: rgba(13,110,110,0.08);
-  color: var(--primary-dark);
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  text-align: center;
-  align-items: center;
-}
-.matrix-axis {
-  background: var(--primary-dark);
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
-.matrix-label {
-  font-size: 0.72rem;
-  color: var(--muted);
-  font-weight: 700;
-}
-.matrix-value {
-  font-family: var(--font-display);
-  font-size: 1.55rem;
-  color: var(--primary-dark);
-  line-height: 1;
-}
-.matrix-value.warn { color: var(--danger); }
-.metric-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.metric-tile {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 12px;
-}
-.metric-name {
-  display: block;
-  font-size: 0.72rem;
-  color: var(--muted);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.metric-number {
-  display: block;
-  margin-top: 4px;
-  font-family: var(--font-display);
-  font-size: 1.45rem;
-  color: var(--primary-dark);
-  line-height: 1;
-}
-.metric-formula {
-  display: block;
-  margin-top: 4px;
-  font-size: 0.7rem;
-  color: var(--muted);
-}
-
-.demo-notice {
-  display: none;
-  margin-top: 12px;
-  padding: 8px 14px;
-  background: rgba(224,160,48,0.1);
-  border: 1px solid rgba(224,160,48,0.3);
-  border-radius: var(--radius-sm);
-  font-size: 0.78rem;
-  color: #8a6510;
-  text-align: center;
-}
-.demo-notice.visible { display: block; }
-
-/* ── ANNOTATED IMAGE SECTION ────────── */
-.section-annotated {
-  padding: 40px 0;
-  display: none;
-}
-.section-annotated.visible { display: block; animation: fadeInUp 0.6s ease both; }
-.section-title {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  color: var(--primary-dark);
-  margin-bottom: 24px;
-  text-align: center;
-}
-.annotated-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-}
-.img-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-.img-card-header {
-  padding: 12px 20px;
-  background: var(--primary);
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.88rem;
-}
-.img-card-body {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.img-card-body img, .img-card-body canvas {
-  width: 100%;
-  max-height: 340px;
-  object-fit: contain;
-  border-radius: var(--radius-sm);
-  background: #f0f0f0;
-}
-.btn-download {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 12px;
-  padding: 8px 20px;
-  background: transparent;
-  border: 1.5px solid var(--primary);
-  color: var(--primary);
-  border-radius: 20px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-  font-family: var(--font-body);
-}
-.btn-download:hover { background: var(--primary); color: #fff; }
-
-/* ── STATS DASHBOARD ───────────────── */
-.section-stats {
-  padding: 48px 0;
-  display: none;
-}
-.section-stats.visible { display: block; animation: fadeInUp 0.6s ease both; }
-.section-stats .section-title {
-  margin-bottom: 28px;
-}
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-  margin-bottom: 30px;
-}
-.stat-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  min-height: 112px;
-  padding: 26px 20px;
-  text-align: center;
-  transition: var(--transition);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-.stat-value {
-  font-family: var(--font-display);
-  font-size: 2.4rem;
-  color: var(--primary-dark);
-  line-height: 1;
-  margin-bottom: 10px;
-}
-.stat-label {
-  font-size: 0.9rem;
-  color: var(--muted);
-  font-weight: 500;
-}
-
-/* Performance Table */
-.perf-table-wrap {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-.perf-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.88rem;
-}
-.perf-table thead {
-  background: var(--primary-dark);
-  color: #fff;
-}
-.perf-table th {
-  padding: 18px 16px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-}
-.perf-table td {
-  padding: 16px;
-  border-bottom: 1px solid var(--border);
-}
-.perf-table tbody tr:last-child td { border-bottom: 0; }
-.perf-table tbody tr:nth-child(even) { background: rgba(13,110,110,0.02); }
-.perf-table tbody tr:hover { background: rgba(13,110,110,0.05); }
-.perf-class {
-  font-weight: 700;
-  color: var(--text);
-}
-.f1-badge {
-  display: inline-block;
-  min-width: 58px;
-  padding: 3px 10px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.82rem;
-  text-align: center;
-}
-.f1-high { background: rgba(0,201,167,0.15); color: #00896e; }
-.f1-med { background: rgba(224,160,48,0.15); color: #8a6510; }
-.f1-low { background: rgba(224,92,92,0.15); color: var(--danger); }
-.status-normal {
-  color: var(--text);
-  font-weight: 500;
-}
-.status-review {
-  color: var(--warning);
-  font-weight: 700;
-}
-
-/* ── ABOUT SECTION ──────────────────── */
-.section-about {
-  padding: 48px 0;
-  border-top: 1px solid var(--border);
-}
-.about-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 32px;
-}
-.about-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 32px;
-}
-.about-card h3 {
-  font-family: var(--font-display);
-  font-size: 1.2rem;
-  color: var(--primary-dark);
-  margin-bottom: 16px;
-}
-.about-card p {
-  font-size: 0.9rem;
-  line-height: 1.7;
-  color: var(--text);
-  margin-bottom: 14px;
-}
-.flow-steps {
-  display: flex;
-  gap: 16px;
-  margin-top: 20px;
-}
-.flow-step {
-  flex: 1;
-  text-align: center;
-  padding: 16px 10px;
-  background: var(--bg);
-  border-radius: var(--radius-sm);
-}
-.flow-step-num {
-  width: 32px;
-  height: 32px;
-  background: var(--primary);
-  color: #fff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.82rem;
-  margin: 0 auto 8px;
-}
-.flow-step-label {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--primary-dark);
-}
-.flow-arrow {
-  display: flex;
-  align-items: center;
-  color: var(--muted);
-  font-size: 1.2rem;
-}
-
-.team-info dt {
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-  color: var(--muted);
-  margin-top: 14px;
-  font-weight: 600;
-}
-.team-info dt:first-child { margin-top: 0; }
-.team-info dd {
-  font-size: 0.95rem;
-  color: var(--text);
-  font-weight: 500;
-  margin-top: 2px;
-}
-
-/* ── FOOTER ──────────────────────────── */
-.footer {
-  background: var(--primary-dark);
-  color: rgba(255,255,255,0.7);
-  padding: 32px 0;
-  text-align: center;
-  font-size: 0.82rem;
-}
-.footer-brand {
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  color: #fff;
-  margin-bottom: 6px;
-}
-.footer-tagline { margin-bottom: 12px; }
-.footer-disclaimer {
-  max-width: 600px;
-  margin: 0 auto 12px;
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.45);
-  line-height: 1.5;
-}
-.footer-links {
-  display: flex;
-  justify-content: center;
-  gap: 24px;
-}
-.footer-links a {
-  color: rgba(255,255,255,0.6);
-  text-decoration: none;
-  transition: var(--transition);
-}
-.footer-links a:hover { color: var(--accent); }
-
-/* ── REPORT (Print) ────────────────── */
-.report-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 1000;
-  align-items: center;
-  justify-content: center;
-}
-.report-overlay.visible { display: flex; }
-.report-content {
-  background: #fff;
-  max-width: 700px;
-  width: 95%;
-  max-height: 90vh;
-  overflow-y: auto;
-  border-radius: var(--radius);
-  padding: 40px;
-}
-.report-content h2 {
-  font-family: var(--font-display);
-  color: var(--primary-dark);
-  border-bottom: 2px solid var(--primary);
-  padding-bottom: 8px;
-  margin-bottom: 16px;
-}
-.report-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
-  font-size: 0.9rem;
-}
-.report-row span:first-child { color: var(--muted); }
-.report-row span:last-child { font-weight: 600; }
-.report-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 20px;
-  justify-content: flex-end;
-}
-
-/* ── RESPONSIVE ────────────────────── */
-@media (max-width: 920px) {
-  .hero-grid, .annotated-grid, .about-grid { grid-template-columns: 1fr; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .header-inner { justify-content: center; text-align: center; }
-  .header-center { order: -1; flex-basis: 100%; }
-}
-@media (max-width: 560px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-  .stat-value { font-size: 1.6rem; }
-  .section-title { font-size: 1.2rem; }
-  .hero { padding: 24px 0; }
-  .flow-steps { flex-direction: column; }
-  .flow-arrow { justify-content: center; transform: rotate(90deg); }
-  .header-title { font-size: 1.15rem; }
-  .perf-table { font-size: 0.78rem; }
-  .perf-table th, .perf-table td { padding: 8px 10px; }
-}
-
-@media print {
-  body { background: #fff; }
-  .header, .footer, .section-stats, .section-about,
-  .upload-panel, .section-annotated,
-  .btn-analyze, .btn-browse, .btn-download,
-  .mode-toggle, .header-badge, .btn-remove-img,
-  .demo-notice { display: none !important; }
-  .panel { box-shadow: none; border: 1px solid #ccc; }
-}
-</style>
+<link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════ -->
-<!-- HEADER                                      -->
-<!-- ═══════════════════════════════════════════ -->
-<header class="header" id="top">
- <div class="container header-inner">
-  <a href="#top" class="header-logo">
-   <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="#00C9A7" stroke-width="2"/><line x1="14" y1="7" x2="14" y2="21" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><line x1="7" y1="14" x2="21" y2="14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
-   Fetal Ultrasound Analysis
+<!-- ══ NAVBAR ══════════════════════════════ -->
+<nav class="navbar" id="top">
+ <div class="container">
+  <a href="#home" class="nav-brand">
+   <svg width="26" height="26" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="#00C9A7" stroke-width="2"/><line x1="14" y1="7" x2="14" y2="21" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><line x1="7" y1="14" x2="21" y2="14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
+   FetalNet AI
   </a>
-  <div class="header-center">
-   <div class="header-title">Fetal Ultrasound Analysis</div>
-   <div class="header-subtitle">AI-Powered Prenatal Diagnostic Assistant</div>
-   <div class="mode-toggle">
-    <label>Demo</label>
-    <button class="mode-switch" id="modeSwitch" type="button" title="Toggle API/Demo mode" aria-label="Toggle API/Demo mode"></button>
-    <label>API</label>
-    <span class="mode-badge demo" id="modeBadge">DEMO</span>
+  <button class="nav-toggle" aria-label="Menu">☰</button>
+  <ul class="nav-links">
+   <li><a href="#home">Home</a></li>
+   <li><a href="#predict">Prediction</a></li>
+   <li><a href="#evaluation">Evaluation</a></li>
+   <li><a href="#training">Training</a></li>
+   <li><a href="#dataset">Dataset</a></li>
+   <li><a href="#about">About</a></li>
+  </ul>
+ </div>
+</nav>
+
+<!-- ══ HOME PAGE ═══════════════════════════ -->
+<section class="page active" id="page-home">
+ <div class="container">
+  <div class="hero-section">
+   <h1 class="hero-title">Automated Fetal Ultrasound Analysis</h1>
+   <p class="hero-sub">AI-powered prenatal diagnostic assistant using YOLOv8 deep learning to classify fetal ultrasound images into anatomical planes.</p>
+   <span class="hero-badge">Powered by YOLOv8 + Deep Learning</span>
+  </div>
+  <div class="disclaimer">⚕️ This system is for educational and research demonstration only. It is not for clinical diagnosis.</div>
+
+  <h2 class="section-title" style="text-align:center;margin-top:32px">How It Works</h2>
+  <div class="flow-steps">
+   <div class="flow-step"><div class="flow-num">1</div><div class="flow-label">Upload</div><div class="flow-desc">Select ultrasound image</div></div>
+   <div class="flow-arrow">→</div>
+   <div class="flow-step"><div class="flow-num">2</div><div class="flow-label">Analyze</div><div class="flow-desc">YOLOv8 classification</div></div>
+   <div class="flow-arrow">→</div>
+   <div class="flow-step"><div class="flow-num">3</div><div class="flow-label">Results</div><div class="flow-desc">View prediction &amp; report</div></div>
+  </div>
+
+  <div class="grid-2" style="margin-top:36px">
+   <div class="card anim-up">
+    <div class="card-header">Supported Classes</div>
+    <div class="card-body">
+     <ul style="padding-left:18px;line-height:2">
+      <li>Fetal Brain</li><li>Fetal Abdomen</li><li>Fetal Femur</li>
+      <li>Fetal Thorax</li><li>Maternal Cervix</li><li>Trans-cerebellum</li>
+      <li>Trans-thalamic</li><li>Trans-ventricular</li><li>Other</li>
+     </ul>
+    </div>
+   </div>
+   <div class="card anim-up">
+    <div class="card-header">Model Modes</div>
+    <div class="card-body">
+     <div style="margin-bottom:16px">
+      <strong style="color:var(--primary-dark)">YOLOv8 Detection</strong>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Detects fetal structures with bounding boxes. Train with labeled detection data (images + labels + data.yaml).</p>
+     </div>
+     <div>
+      <strong style="color:var(--primary-dark)">YOLOv8 Classification</strong>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Classifies ultrasound planes by folder. Train with folder-labeled classification data.</p>
+     </div>
+    </div>
    </div>
   </div>
-  <div class="header-badge">Powered by YOLOv8 + Deep Learning</div>
  </div>
-</header>
+</section>
 
-<!-- ═══════════════════════════════════════════ -->
-<!-- HERO SECTION                                -->
-<!-- ═══════════════════════════════════════════ -->
-<section class="hero">
+<!-- ══ PREDICTION PAGE ════════════════════ -->
+<section class="page" id="page-predict">
  <div class="container">
-  <div class="hero-grid">
-
-   <!-- ── UPLOAD PANEL ── -->
-   <div class="panel anim-fade-up" id="uploadPanel">
-    <div class="panel-header">
+  <h2 class="section-title">Upload &amp; Prediction</h2>
+  <div class="disclaimer">⚕️ This system is for educational and research demonstration only. It is not for clinical diagnosis.</div>
+  <div class="alert alert-warning" id="modelAlert" style="display:none"></div>
+  <div class="grid-2">
+   <!-- Upload Panel -->
+   <div class="card">
+    <div class="card-header">
      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3v10M6 7l4-4 4 4" stroke="#0D6E6E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 14v2a2 2 0 002 2h10a2 2 0 002-2v-2" stroke="#0D6E6E" stroke-width="2" stroke-linecap="round"/></svg>
      Upload Ultrasound Image
     </div>
-    <div class="panel-body">
-     <div class="control-card">
-      <label class="field-label" for="groundTruthSelect">Sample Ground Truth</label>
-      <select class="select-input" id="groundTruthSelect">
-       <option value="Fetal brain">Fetal brain</option>
-       <option value="Fetal abdomen">Fetal abdomen</option>
-       <option value="Fetal femur">Fetal femur</option>
-       <option value="Not ultrasound">Not ultrasound</option>
-      </select>
-     </div>
+    <div class="card-body">
      <div class="upload-zone" id="uploadZone">
-      <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="8" y="8" width="32" height="32" rx="4" stroke="#0D6E6E" stroke-width="2" stroke-dasharray="4 3"/><circle cx="24" cy="24" r="6" stroke="#0D6E6E" stroke-width="2"/><line x1="24" y1="20" x2="24" y2="28" stroke="#0D6E6E" stroke-width="2" stroke-linecap="round"/><line x1="20" y1="24" x2="28" y2="24" stroke="#0D6E6E" stroke-width="2" stroke-linecap="round"/></svg>
-      <p class="upload-zone-text">Drop ultrasound image here</p>
-      <p class="upload-zone-sub">Supports JPG, PNG, WEBP — Max 10 MB</p>
-      <button class="btn-browse" id="btnBrowse" type="button">Browse Files</button>
+      <svg width="44" height="44" viewBox="0 0 48 48" fill="none"><rect x="8" y="8" width="32" height="32" rx="4" stroke="#0D6E6E" stroke-width="2" stroke-dasharray="4 3"/><circle cx="24" cy="24" r="6" stroke="#0D6E6E" stroke-width="2"/></svg>
+      <p class="main">Drop ultrasound image here</p>
+      <p class="sub">Supports JPG, PNG, WEBP — Max 10 MB</p>
+      <button class="btn btn-primary" id="btnBrowse" type="button">Browse Files</button>
       <input type="file" class="upload-input" id="fileInput" accept="image/jpeg,image/png,image/webp,image/bmp">
      </div>
      <div class="preview-area" id="previewArea">
-      <div class="preview-img-wrap">
-       <img id="previewImg" alt="Uploaded ultrasound preview" src="">
-       <button class="btn-remove-img" id="btnRemove" type="button" title="Remove image" aria-label="Remove image">✕</button>
+      <div class="preview-wrap">
+       <img id="previewImg" alt="Preview" src="">
+       <button class="btn-remove" id="btnRemove" type="button" title="Remove">✕</button>
       </div>
-      <div class="preview-info">
-       <span id="fileName">—</span>
-       <span id="fileSize">—</span>
+      <div class="preview-info"><span id="fileName">—</span><span id="fileSize">—</span></div>
+     </div>
+     <div class="annotated-section" id="annotatedSection">
+      <div class="card" style="margin-top:12px">
+       <div class="card-header">Annotated Result</div>
+       <div class="card-body" style="text-align:center">
+        <canvas id="annotatedCanvas" width="448" height="448"></canvas>
+        <button class="btn btn-outline" id="btnDownload" type="button" style="margin-top:12px">⬇ Download Annotated</button>
+       </div>
       </div>
      </div>
-     <button class="btn-analyze" id="btnAnalyze" type="button" disabled>
-      <span class="spinner"></span>
-      <span class="btn-text">Analyze Image</span>
+     <button class="btn btn-primary btn-lg" id="btnAnalyze" type="button" disabled style="margin-top:20px">
+      <span class="spinner"></span><span class="btn-text">Analyze Image</span>
      </button>
-     <div class="camera-card">
-      <div class="camera-actions">
-       <button class="btn-secondary" id="btnStartCamera" type="button">Start Real-Time Analysis</button>
-       <button class="btn-secondary danger" id="btnStopCamera" type="button" disabled>Stop Camera</button>
-      </div>
-      <div class="video-wrap" id="videoWrap">
-       <video id="liveVideo" autoplay muted playsinline></video>
-      </div>
-      <div class="live-status" id="liveStatus">Camera is stopped.</div>
-     </div>
     </div>
    </div>
 
-   <!-- ── RESULT PANEL ── -->
-   <div class="panel anim-fade-up anim-delay-2" id="resultPanel">
-    <div class="panel-header">
+   <!-- Result Panel -->
+   <div class="card">
+    <div class="card-header">
      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M17 10a7 7 0 11-14 0 7 7 0 0114 0z" stroke="#0D6E6E" stroke-width="2"/><path d="M10 7v3l2 2" stroke="#0D6E6E" stroke-width="2" stroke-linecap="round"/></svg>
      Analysis Results
     </div>
-    <div class="panel-body">
-     <!-- Placeholder -->
+    <div class="card-body">
      <div class="result-placeholder" id="resultPlaceholder">
-      <svg width="80" height="80" viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="38" rx="24" ry="28" stroke="#0D6E6E" stroke-width="2"/><path d="M26 50c2 6 8 12 14 14" stroke="#0D6E6E" stroke-width="2" stroke-linecap="round"/><circle cx="40" cy="30" r="8" stroke="#0D6E6E" stroke-width="1.5" stroke-dasharray="3 2"/><rect x="35" y="60" width="10" height="16" rx="3" stroke="#0D6E6E" stroke-width="2"/></svg>
-      <p>Upload an image to begin analysis</p>
+      <svg width="64" height="64" viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="38" rx="24" ry="28" stroke="#0D6E6E" stroke-width="2"/><circle cx="40" cy="30" r="8" stroke="#0D6E6E" stroke-width="1.5" stroke-dasharray="3 2"/></svg>
+      <p style="margin-top:12px">Upload an image to begin analysis</p>
      </div>
-     <!-- Actual results -->
      <div class="result-content" id="resultContent">
-      <div class="invalid-note" id="invalidNote">Invalid input: Please upload a fetal ultrasound image.</div>
-      <!-- Detection -->
-      <div class="result-card" id="detectionCard">
+      <div class="result-card">
        <div class="result-card-label">Detected Structure</div>
        <div class="detection-row">
         <div class="detection-icon" id="detectionIcon"></div>
-        <div class="detection-info">
+        <div>
          <div class="detection-class" id="detectionClass">—</div>
-         <div class="status-badge normal" id="statusBadge">
-          <span class="status-dot"></span>
-          <span id="statusText">NORMAL</span>
-         </div>
+         <div style="font-size:.78rem;color:var(--muted);margin-top:2px" id="modelTypeLabel">Model: --</div>
+         <div class="status-badge normal" id="statusBadge"><span class="status-dot"></span><span id="statusText">NORMAL</span></div>
         </div>
        </div>
       </div>
-      <!-- Confidence -->
       <div class="result-card">
        <div class="result-card-label">Confidence Score</div>
        <div class="conf-bar-wrap">
@@ -1166,49 +151,14 @@ body {
         <div class="conf-value" id="confValue">0%</div>
        </div>
       </div>
-      <!-- Top-K -->
       <div class="result-card">
-       <div class="result-card-label">Top 3 Predictions</div>
+       <div class="result-card-label">Top Predictions</div>
        <div id="topKContainer"></div>
       </div>
-      <!-- Confusion Matrix -->
-      <div class="result-card">
-       <div class="result-card-label">Confusion Matrix</div>
-       <div class="matrix-wrap" aria-label="2 by 2 confusion matrix">
-        <div class="matrix-cell matrix-head"></div>
-        <div class="matrix-cell matrix-head">Actual +</div>
-        <div class="matrix-cell matrix-head">Actual -</div>
-        <div class="matrix-cell matrix-axis">Predicted +</div>
-        <div class="matrix-cell"><span class="matrix-label">TP</span><span class="matrix-value" id="matrixTP">0</span></div>
-        <div class="matrix-cell"><span class="matrix-label">FP</span><span class="matrix-value warn" id="matrixFP">0</span></div>
-        <div class="matrix-cell matrix-axis">Predicted -</div>
-        <div class="matrix-cell"><span class="matrix-label">FN</span><span class="matrix-value warn" id="matrixFN">0</span></div>
-        <div class="matrix-cell"><span class="matrix-label">TN</span><span class="matrix-value" id="matrixTN">0</span></div>
-       </div>
-      </div>
-      <!-- Metrics -->
-      <div class="result-card">
-       <div class="result-card-label">Metrics From Matrix</div>
-       <div class="metric-grid">
-        <div class="metric-tile"><span class="metric-name">Accuracy</span><span class="metric-number" id="metricAccuracy">0%</span><span class="metric-formula">(TP + TN) / Total</span></div>
-        <div class="metric-tile"><span class="metric-name">Precision</span><span class="metric-number" id="metricPrecision">0%</span><span class="metric-formula">TP / (TP + FP)</span></div>
-        <div class="metric-tile"><span class="metric-name">Recall</span><span class="metric-number" id="metricRecall">0%</span><span class="metric-formula">TP / (TP + FN)</span></div>
-        <div class="metric-tile"><span class="metric-name">F1 Score</span><span class="metric-number" id="metricF1">0%</span><span class="metric-formula">2PR / (P + R)</span></div>
-       </div>
-      </div>
-      <!-- Clinical Note -->
       <div class="result-card">
        <div class="result-card-label">Clinical Note</div>
        <div class="clinical-note" id="clinicalNote"></div>
-       <p class="clinical-disclaimer">⚕️ This is an AI-assisted analysis for educational purposes. Always consult a qualified medical professional.</p>
-      </div>
-      <div class="demo-notice" id="demoNotice">⚠️ Demo Mode — Connect Flask API for live results</div>
-      <!-- Action buttons -->
-      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
-       <button class="btn-download" id="btnReport" type="button">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10v2h10v-2M7 2v7m-3-3l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Download Report
-       </button>
+       <p class="clinical-disclaimer">This system is for educational and research demonstration only. It is not for clinical diagnosis.</p>
       </div>
      </div>
     </div>
@@ -1217,942 +167,191 @@ body {
  </div>
 </section>
 
-<!-- ═══════════════════════════════════════════ -->
-<!-- ANNOTATED IMAGE SECTION                     -->
-<!-- ═══════════════════════════════════════════ -->
-<section class="section-annotated" id="sectionAnnotated">
+<!-- ══ EVALUATION PAGE ═══════════════════ -->
+<section class="page" id="page-evaluation">
  <div class="container">
-  <h2 class="section-title">Image Analysis</h2>
-  <div class="annotated-grid">
-   <div class="img-card">
-    <div class="img-card-header">Original Image</div>
-    <div class="img-card-body">
-     <img id="origDisplay" alt="Original ultrasound image" src="">
-     <button class="btn-download" id="btnDownloadOrig" type="button">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10v2h10v-2M7 2v7m-3-3l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Download Original
-     </button>
+  <h2 class="section-title">Model Evaluation Dashboard</h2>
+  <div class="disclaimer">⚕️ This system is for educational and research demonstration only. It is not for clinical diagnosis.</div>
+  <div class="alert alert-warning" id="evalMessage">Loading evaluation data...</div>
+
+  <div class="card" style="margin-top:20px">
+   <div class="card-header">Detection Metrics</div>
+   <div class="card-body"><div class="stats-grid" id="evalMetricsGrid"><div class="empty-state">Loading...</div></div></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+   <div class="card-header">Classification Metrics</div>
+   <div class="card-body"><div class="stats-grid" id="clsMetricsGrid"><div class="empty-state">Loading...</div></div></div>
+  </div>
+
+  <div class="confusion-wrap" id="confusionWrap">
+   <div class="card"><div class="card-header">Detection Confusion Matrix</div><div class="card-body"><img id="confusionImg" src="" alt="Confusion matrix"></div></div>
+  </div>
+  <div class="confusion-wrap" id="clsConfusionWrap">
+   <div class="card"><div class="card-header">Classification Confusion Matrix</div><div class="card-body"><img id="clsConfusionImg" src="" alt="Classification confusion matrix"></div></div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+   <div class="card-header">Evaluation Files</div>
+   <div class="card-body"><ul class="eval-files" id="evalFilesList"><li>Checking...</li></ul></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+   <div class="card-header">How to Generate Evaluation Results</div>
+   <div class="card-body">
+    <p style="margin-bottom:8px"><strong>Detection:</strong></p>
+    <code class="command-box" id="evalCommand">yolo detect val model=runs/detect/train/weights/best.pt data=data.yaml</code>
+    <p style="margin:16px 0 8px"><strong>Classification:</strong></p>
+    <code class="command-box" id="clsEvalCommand">yolo classify val model=runs/classify/train/weights/best.pt data=dataset_cls</code>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ══ TRAINING PAGE ═════════════════════ -->
+<section class="page" id="page-training">
+ <div class="container">
+  <h2 class="section-title">YOLOv8 Training Dashboard</h2>
+  <div class="disclaimer">⚕️ This system is for educational and research demonstration only. It is not for clinical diagnosis.</div>
+
+  <!-- Top bar: subtitle + action buttons -->
+  <div class="training-topbar">
+   <p class="training-subtitle">Automated Fetal Ultrasound Analysis — Deep Learning Training Manager</p>
+   <div class="training-actions">
+    <button class="btn btn-primary" id="btnTrainStart" type="button">🚀 Start Training</button>
+    <button class="btn btn-outline" id="btnTrainStop" type="button" disabled>⏹ Stop Training</button>
+    <button class="btn btn-outline" id="btnTrainOpen" type="button">📂 Open Results</button>
+   </div>
+  </div>
+
+  <!-- Status panel -->
+  <div class="card" style="margin-top:20px">
+   <div class="card-header">Training Status</div>
+   <div class="card-body">
+    <div class="training-status-row">
+     <span class="training-dot" id="trainDot"></span>
+     <span class="training-status-msg" id="trainStatusMsg">Loading status...</span>
+    </div>
+    <div class="training-progress-track" style="margin-top:16px">
+     <div class="training-progress-fill" id="trainProgressFill"></div>
+    </div>
+    <div class="training-info-row">
+     <span id="trainEpochText">Epoch 0 / 50</span>
+     <span id="trainGpuText">Device: checking...</span>
+     <span id="trainCompleteText"></span>
     </div>
    </div>
-   <div class="img-card">
-    <div class="img-card-header">Annotated Result</div>
-    <div class="img-card-body">
-     <canvas id="annotatedCanvas" width="448" height="448"></canvas>
-     <button class="btn-download" id="btnDownloadAnnotated" type="button">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10v2h10v-2M7 2v7m-3-3l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Download Annotated
-     </button>
+  </div>
+
+  <!-- Metric cards -->
+  <div class="training-metric-cards" style="margin-top:18px">
+   <div class="card training-metric-card"><div class="card-body"><div class="training-metric-label">LOSS</div><div class="training-metric-value" id="trainLossVal">--</div></div></div>
+   <div class="card training-metric-card"><div class="card-body"><div class="training-metric-label">PRECISION</div><div class="training-metric-value" id="trainPrecisionVal">--</div></div></div>
+   <div class="card training-metric-card"><div class="card-body"><div class="training-metric-label">RECALL</div><div class="training-metric-value" id="trainRecallVal">--</div></div></div>
+   <div class="card training-metric-card"><div class="card-body"><div class="training-metric-label">mAP50</div><div class="training-metric-value" id="trainMapVal">--</div></div></div>
+  </div>
+
+  <!-- Charts + Logs grid -->
+  <div class="training-grid" style="margin-top:18px">
+   <div>
+    <!-- Live Graphs -->
+    <div class="card">
+     <div class="card-header">Live Graphs</div>
+     <div class="card-body">
+      <div class="training-charts">
+       <div class="training-chart-card"><h4>Loss Curve</h4><canvas id="trainLossChart"></canvas></div>
+       <div class="training-chart-card"><h4>Precision Curve</h4><canvas id="trainPrecisionChart"></canvas></div>
+       <div class="training-chart-card"><h4>Recall Curve</h4><canvas id="trainRecallChart"></canvas></div>
+       <div class="training-chart-card"><h4>F1 Curve</h4><canvas id="trainF1Chart"></canvas></div>
+      </div>
+     </div>
+    </div>
+    <!-- Generated Result Images -->
+    <div class="card" style="margin-top:18px">
+     <div class="card-header">Generated Result Images</div>
+     <div class="card-body">
+      <div class="training-artifacts">
+       <div class="training-artifact" id="trainArtResults"><img alt="YOLO results plot"></div>
+       <div class="training-artifact" id="trainArtPR"><img alt="PR curve"></div>
+       <div class="training-artifact" id="trainArtF1"><img alt="F1 curve"></div>
+       <div class="training-artifact" id="trainArtConfusion"><img alt="Confusion matrix"></div>
+      </div>
+      <p class="training-artifact-hint" id="trainArtHint">Result images appear here after YOLO creates them.</p>
+     </div>
+    </div>
+   </div>
+   <div>
+    <!-- Logs -->
+    <div class="card">
+     <div class="card-header">Training Logs</div>
+     <div class="card-body" style="padding:0">
+      <div class="training-logbox" id="trainLogs">Waiting for logs...</div>
+     </div>
+    </div>
+    <!-- Output paths -->
+    <div class="card" style="margin-top:18px">
+     <div class="card-header">Output Paths</div>
+     <div class="card-body">
+      <p style="font-size:.88rem;color:var(--muted)">Best model:<br><strong id="trainBestPath" style="color:var(--primary-dark);word-break:break-all">runs/detect/train/weights/best.pt</strong></p>
+      <p style="font-size:.88rem;color:var(--muted);margin-top:12px">Last model:<br><strong id="trainLastPath" style="color:var(--primary-dark);word-break:break-all">runs/detect/train/weights/last.pt</strong></p>
+     </div>
     </div>
    </div>
   </div>
  </div>
 </section>
 
-<!-- ═══════════════════════════════════════════ -->
-<!-- STATISTICS DASHBOARD                        -->
-<!-- ═══════════════════════════════════════════ -->
-<section class="section-stats" id="sectionStats">
+<!-- ══ DATASET PAGE ══════════════════════ -->
+<section class="page" id="page-dataset">
  <div class="container">
-  <h2 class="section-title">Model Performance Dashboard</h2>
-  <div class="stats-grid">
-   <div class="stat-card anim-fade-up"><div class="stat-value" id="dashAccuracy">0%</div><div class="stat-label">Overall Accuracy</div></div>
-   <div class="stat-card anim-fade-up anim-delay-1"><div class="stat-value" id="dashPrecision">0%</div><div class="stat-label">Precision</div></div>
-   <div class="stat-card anim-fade-up anim-delay-2"><div class="stat-value" id="dashRecall">0%</div><div class="stat-label">Recall</div></div>
-   <div class="stat-card anim-fade-up anim-delay-3"><div class="stat-value" id="dashF1">0%</div><div class="stat-label">F1 Score</div></div>
-  </div>
-  <div class="perf-table-wrap anim-fade-up anim-delay-2">
-   <table class="perf-table" aria-label="Class-wise model performance">
-    <thead>
-     <tr>
-      <th>Class</th>
-      <th>Precision</th>
-      <th>Recall</th>
-      <th>F1 Score</th>
-      <th>Status</th>
-     </tr>
-    </thead>
-    <tbody id="perfTableBody"></tbody>
-   </table>
-  </div>
+  <h2 class="section-title">Dataset Checker</h2>
+  <div class="disclaimer">⚕️ This system is for educational and research demonstration only. It is not for clinical diagnosis.</div>
+  <div id="datasetContainer"><div class="empty-state">Loading dataset status...</div></div>
  </div>
 </section>
 
-<!-- ═══════════════════════════════════════════ -->
-<!-- ABOUT SECTION                               -->
-<!-- ═══════════════════════════════════════════ -->
-<section class="section-about" id="sectionAbout">
+<!-- ══ ABOUT PAGE ═══════════════════════ -->
+<section class="page" id="page-about">
  <div class="container">
   <h2 class="section-title">About This System</h2>
   <div class="about-grid">
-   <div class="about-card anim-fade-up">
-    <h3>What is Fetal Image Analysis?</h3>
-    <p>This AI-powered system uses <strong>YOLOv8</strong> deep learning to automatically classify fetal ultrasound images into 9 anatomical planes. It assists prenatal screening by identifying structures like the fetal brain, abdomen, femur, thorax, and more.</p>
-    <p>Trained on the <strong>BCNatal Maternal-Fetal Ultrasound Dataset</strong> (12,400+ images from Zenodo), the model achieves high accuracy in distinguishing between different anatomical views, helping clinicians quickly verify standard diagnostic planes.</p>
-    <h3 style="margin-top:20px;">How It Works</h3>
-    <div class="flow-steps">
-     <div class="flow-step"><div class="flow-step-num">1</div><div class="flow-step-label">Upload</div><p style="font-size:0.75rem;color:var(--muted);margin-top:4px">Select ultrasound image</p></div>
-     <div class="flow-arrow">→</div>
-     <div class="flow-step"><div class="flow-step-num">2</div><div class="flow-step-label">Analyze</div><p style="font-size:0.75rem;color:var(--muted);margin-top:4px">YOLOv8 classification</p></div>
-     <div class="flow-arrow">→</div>
-     <div class="flow-step"><div class="flow-step-num">3</div><div class="flow-step-label">Diagnose</div><p style="font-size:0.75rem;color:var(--muted);margin-top:4px">View clinical results</p></div>
+   <div class="card anim-up">
+    <div class="card-header">What is Automated Fetal Ultrasound Analysis?</div>
+    <div class="card-body">
+     <p style="margin-bottom:14px">This AI-powered system uses <strong>YOLOv8</strong> deep learning to automatically classify fetal ultrasound images into anatomical planes. It assists prenatal screening by identifying structures like the fetal brain, abdomen, femur, thorax, and more.</p>
+     <p>Trained on the <strong>BCNatal Maternal-Fetal Ultrasound Dataset</strong> (12,400+ images from Zenodo), the model achieves high accuracy in distinguishing between different anatomical views.</p>
+     <p style="margin-top:14px">The system supports both <strong>YOLOv8 Detection</strong> (bounding boxes) and <strong>YOLOv8 Classification</strong> (plane classification) modes.</p>
     </div>
    </div>
-   <div class="about-card anim-fade-up anim-delay-2">
-    <h3>Project Details</h3>
-    <dl class="team-info">
-     <dt>Project</dt><dd>Fetal Image Analysis Using Deep Learning</dd>
-     <dt>Team Members</dt><dd>JAI RASIGA.G.K, SANGAMITHIRAI.K, RAJADIVYA.V</dd>
-     <dt>Project Guide</dt><dd>MR. S.MOHANRAJ AP/ECE</dd>
-     <dt>Model</dt><dd>YOLOv8s Classification</dd>
-     <dt>Dataset</dt><dd>BCNatal (Zenodo) — 12,400 images</dd>
-     <dt>Classes</dt><dd>9 anatomical planes</dd>
-     <dt>Input Size</dt><dd>224 × 224 pixels</dd>
-    </dl>
+   <div class="card anim-up">
+    <div class="card-header">Project Details</div>
+    <div class="card-body">
+     <dl class="team-info">
+      <dt>Project</dt><dd>Automated Fetal Ultrasound Analysis Using Deep Learning (YOLOv8)</dd>
+      <dt>Team Members</dt><dd>JAI RASIGA.G.K, SANGAMITHIRAI.K, RAJADIVYA.V</dd>
+      <dt>Project Guide</dt><dd>MR. S.MOHANRAJ AP/ECE</dd>
+      <dt>Model</dt><dd>YOLOv8 (Detection + Classification)</dd>
+      <dt>Dataset</dt><dd>BCNatal (Zenodo) — 12,400+ images</dd>
+      <dt>Classes</dt><dd>Fetal abdomen, Fetal brain, Fetal femur, Fetal thorax, Maternal cervix, Trans-cerebellum, Trans-thalamic, Trans-ventricular, Other</dd>
+      <dt>Input Size</dt><dd>224 × 224 pixels (Classification) / 640 × 640 (Detection)</dd>
+     </dl>
+    </div>
    </div>
   </div>
+  <div class="disclaimer" style="margin-top:32px">⚕️ This system is for educational and research demonstration only. It is not for clinical diagnosis.</div>
  </div>
 </section>
 
-<!-- ═══════════════════════════════════════════ -->
-<!-- FOOTER                                      -->
-<!-- ═══════════════════════════════════════════ -->
+<!-- ══ FOOTER ════════════════════════════ -->
 <footer class="footer">
  <div class="container">
-  <div class="footer-disclaimer">⚕️ For research and educational purposes only. This system is not a substitute for professional medical diagnosis. Always consult qualified healthcare professionals for clinical decisions.</div>
+  <div class="footer-disclaimer">This system is for educational and research demonstration only. It is not for clinical diagnosis. Always consult qualified medical professionals.</div>
   <div class="footer-links">
-   <a href="#">GitHub</a>
-   <a href="#">Contact</a>
+   <a href="#home">Home</a>
+   <a href="#about">About</a>
    <a href="#top">Back to Top</a>
   </div>
  </div>
 </footer>
 
-<!-- ═══════════════════════════════════════════ -->
-<!-- REPORT OVERLAY                              -->
-<!-- ═══════════════════════════════════════════ -->
-<div class="report-overlay" id="reportOverlay">
- <div class="report-content" id="reportContent"></div>
-</div>
-
-<!-- ═════════════════════════════════════════════════════════ -->
-<!-- JAVASCRIPT                                               -->
-<!-- ═════════════════════════════════════════════════════════ -->
-<script>
-/* ============================================================
-   FETAL IMAGE ANALYSIS DEMO — JavaScript
-   Phase 4
-   ============================================================ */
-
-// ── CONFIG ──────────────────────────────────
-const API_BASE_URL = 'http://localhost:5000';
-let DEMO_MODE = true;
-
-// ── CLASS DATA ──────────────────────────────
-const CLASS_DATA = {
-  "Fetal abdomen": {
-    icon: `<svg viewBox="0 0 28 28" fill="none"><ellipse cx="14" cy="14" rx="10" ry="11" stroke="#fff" stroke-width="2"/><ellipse cx="14" cy="15" rx="5" ry="6" stroke="#fff" stroke-width="1.5" stroke-dasharray="3 2"/></svg>`,
-    note: "Fetal abdominal plane detected. This view is used to assess abdominal circumference and estimate fetal weight. Normal abdominal morphology observed.",
-    prec: 96.0, rec: 97.1, f1: 96.5
-  },
-  "Fetal brain": {
-    icon: `<svg viewBox="0 0 28 28" fill="none"><path d="M14 4c-5 0-9 4-9 9 0 3.5 2 6.5 5 8h8c3-1.5 5-4.5 5-8 0-5-4-9-9-9z" stroke="#fff" stroke-width="2"/><path d="M14 6v16M9 10c2 1 3 4 3 7M19 10c-2 1-3 4-3 7" stroke="#fff" stroke-width="1.2"/></svg>`,
-    note: "Fetal brain plane detected. This neurodevelopmental view assesses overall brain structure and is used for head circumference measurement.",
-    prec: 97.2, rec: 96.4, f1: 96.8
-  },
-  "Fetal femur": {
-    icon: `<svg viewBox="0 0 28 28" fill="none"><path d="M7 7c0 2 1 3 3 3h1l5 8h1c2 0 3 1 3 3" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="7" cy="6" r="2.5" stroke="#fff" stroke-width="1.5"/><circle cx="21" cy="22" r="2.5" stroke="#fff" stroke-width="1.5"/></svg>`,
-    note: "Fetal femur plane detected. Femur length measurement from this view is a key biometric parameter used in fetal growth and gestational age assessment.",
-    prec: 95.6, rec: 95.9, f1: 95.7
-  },
-  "Fetal thorax": {
-    icon: `<svg viewBox="0 0 28 28" fill="none"><path d="M14 5v18" stroke="#fff" stroke-width="1.5"/><path d="M8 8c3 1 5 0 6 0M8 12c3 1 5 0 6 0M8 16c3 1 5 0 6 0M20 8c-3 1-5 0-6 0M20 12c-3 1-5 0-6 0M20 16c-3 1-5 0-6 0" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>`,
-    note: "Fetal thorax plane detected. This view evaluates heart and lung development, including cardiac position and thoracic circumference.",
-    prec: 94.2, rec: 95.6, f1: 94.9
-  },
-  "Maternal cervix": {
-    icon: `<svg viewBox="0 0 28 28" fill="none"><path d="M10 5h8v4c0 2-1.5 3-4 4-2.5-1-4-2-4-4V5zM10 23h8v-4c0-2-1.5-3-4-4-2.5 1-4 2-4 4v4z" stroke="#fff" stroke-width="2"/></svg>`,
-    note: "Maternal cervix detected. Cervical length measurement from this view is used to assess risk of preterm labor and delivery complications.",
-    prec: 96.3, rec: 96.9, f1: 96.6
-  },
-  "Trans-cerebellum": {
-    icon: `<svg viewBox="0 0 28 28" fill="none"><ellipse cx="9" cy="14" rx="5" ry="7" stroke="#fff" stroke-width="2"/><ellipse cx="19" cy="14" rx="5" ry="7" stroke="#fff" stroke-width="2"/><line x1="14" y1="8" x2="14" y2="20" stroke="#fff" stroke-width="1.5"/></svg>`,
-    note: "Trans-cerebellar plane detected. Used to measure cerebellar diameter and assess posterior fossa structures for fetal weight estimation.",
-    prec: 95.0, rec: 96.3, f1: 95.6
-  },
-  "Trans-thalamic": {
-    icon: `<svg viewBox="0 0 28 28" fill="none"><ellipse cx="14" cy="14" rx="10" ry="8" stroke="#fff" stroke-width="2"/><ellipse cx="10" cy="14" rx="3" ry="4" stroke="#fff" stroke-width="1.5"/><ellipse cx="18" cy="14" rx="3" ry="4" stroke="#fff" stroke-width="1.5"/></svg>`,
-    note: "Trans-thalamic plane detected. This view visualizes the thalami and cavum septi pellucidi, key markers for neurodevelopmental assessment.",
-    prec: 96.7, rec: 97.4, f1: 97.0
-  },
-  "Trans-ventricular": {
-    icon: `<svg viewBox="0 0 28 28" fill="none"><ellipse cx="14" cy="14" rx="10" ry="9" stroke="#fff" stroke-width="2"/><line x1="8" y1="11" x2="20" y2="11" stroke="#fff" stroke-width="1.2"/><line x1="8" y1="14" x2="20" y2="14" stroke="#fff" stroke-width="1.2"/><line x1="8" y1="17" x2="20" y2="17" stroke="#fff" stroke-width="1.2"/></svg>`,
-    note: "Trans-ventricular plane detected. This view assesses the cerebral ventricles and is critical for detecting conditions such as ventriculomegaly.",
-    prec: 93.8, rec: 95.0, f1: 94.4
-  },
-  "Other": {
-    icon: `<svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="10" stroke="#fff" stroke-width="2"/><text x="14" y="19" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">?</text></svg>`,
-    note: "Non-standard plane detected. This image does not correspond to a standard fetal anatomical plane. Please reposition the ultrasound probe.",
-    prec: 92.0, rec: 93.4, f1: 92.7
-  }
-};
-
-const CLASS_NAMES = Object.keys(CLASS_DATA);
-const NOT_ULTRASOUND_LABEL = 'Not ultrasound';
-let sessionMatrix = { TP: 0, TN: 0, FP: 0, FN: 0 };
-let classMatrices = {};
-
-function blankMatrix() {
-  return { TP: 0, TN: 0, FP: 0, FN: 0 };
-}
-
-function resetClassMatrices() {
-  classMatrices = {};
-}
-
-function safeDiv(num, den) {
-  return den ? num / den : 0;
-}
-
-function metricsFromMatrix(counts) {
-  const TP = Number(counts.TP || 0);
-  const TN = Number(counts.TN || 0);
-  const FP = Number(counts.FP || 0);
-  const FN = Number(counts.FN || 0);
-  const total = TP + TN + FP + FN;
-  const precision = safeDiv(TP, TP + FP);
-  const recall = safeDiv(TP, TP + FN);
-  const f1 = safeDiv(2 * precision * recall, precision + recall);
-
-  return {
-    TP,
-    TN,
-    FP,
-    FN,
-    accuracy: Number((safeDiv(TP + TN, total) * 100).toFixed(2)),
-    precision: Number((precision * 100).toFixed(2)),
-    recall: Number((recall * 100).toFixed(2)),
-    f1_score: Number((f1 * 100).toFixed(2)),
-  };
-}
-
-function eventMatrixFromLabels(actualLabel, predictedLabel, isUltrasound) {
-  const counts = { TP: 0, TN: 0, FP: 0, FN: 0 };
-  const actualPositive = actualLabel !== NOT_ULTRASOUND_LABEL;
-  const predictedPositive = isUltrasound && predictedLabel !== NOT_ULTRASOUND_LABEL;
-
-  if (actualPositive && predictedLabel === actualLabel) counts.TP = 1;
-  else if (actualPositive) counts.FN = 1;
-  else if (predictedPositive) counts.FP = 1;
-  else counts.TN = 1;
-
-  return counts;
-}
-
-function addToSessionMatrix(counts) {
-  sessionMatrix.TP += counts.TP || 0;
-  sessionMatrix.TN += counts.TN || 0;
-  sessionMatrix.FP += counts.FP || 0;
-  sessionMatrix.FN += counts.FN || 0;
-}
-
-function addToClassMatrices(actualLabel, predictedLabel, isUltrasound) {
-  const predicted = isUltrasound === false ? NOT_ULTRASOUND_LABEL : predictedLabel;
-  const labels = new Set([actualLabel, predicted].filter(Boolean));
-
-  labels.forEach((label) => {
-    if (!classMatrices[label]) classMatrices[label] = blankMatrix();
-    const actualMatch = actualLabel === label;
-    const predictedMatch = predicted === label;
-
-    if (actualMatch && predictedMatch) classMatrices[label].TP += 1;
-    else if (!actualMatch && predictedMatch) classMatrices[label].FP += 1;
-    else if (actualMatch && !predictedMatch) classMatrices[label].FN += 1;
-    else classMatrices[label].TN += 1;
-  });
-}
-
-function currentGroundTruth() {
-  return $('#groundTruthSelect').value;
-}
-
-// ── DOM REFS ────────────────────────────────
-const $ = (sel) => document.querySelector(sel);
-const uploadZone = $('#uploadZone');
-const fileInput = $('#fileInput');
-const btnBrowse = $('#btnBrowse');
-const previewArea = $('#previewArea');
-const previewImg = $('#previewImg');
-const btnRemove = $('#btnRemove');
-const btnAnalyze = $('#btnAnalyze');
-const resultPlaceholder = $('#resultPlaceholder');
-const resultContent = $('#resultContent');
-const sectionAnnotated = $('#sectionAnnotated');
-const sectionStats = $('#sectionStats');
-const modeSwitch = $('#modeSwitch');
-const modeBadge = $('#modeBadge');
-const demoNotice = $('#demoNotice');
-const perfTableBody = $('#perfTableBody');
-const reportOverlay = $('#reportOverlay');
-const groundTruthSelect = $('#groundTruthSelect');
-const btnStartCamera = $('#btnStartCamera');
-const btnStopCamera = $('#btnStopCamera');
-const liveVideo = $('#liveVideo');
-const videoWrap = $('#videoWrap');
-const liveStatus = $('#liveStatus');
-const invalidNote = $('#invalidNote');
-
-let currentFile = null;
-let currentResult = null;
-let currentImageDataURL = null;
-let cameraStream = null;
-let realtimeTimer = null;
-let realtimeBusy = false;
-
-// ── MODE TOGGLE ────────────────────────────
-modeSwitch.addEventListener('click', () => {
-  DEMO_MODE = !DEMO_MODE;
-  modeSwitch.classList.toggle('active', !DEMO_MODE);
-  modeBadge.textContent = DEMO_MODE ? 'DEMO' : 'API';
-  modeBadge.className = 'mode-badge ' + (DEMO_MODE ? 'demo' : 'api');
-});
-
-// ── FILE UPLOAD ────────────────────────────
-btnBrowse.addEventListener('click', () => fileInput.click());
-uploadZone.addEventListener('click', (e) => {
-  if (e.target === uploadZone || e.target.closest('.upload-zone-text') || e.target.closest('.upload-zone-sub') || e.target.closest('svg')) {
-    fileInput.click();
-  }
-});
-
-// Drag & drop
-uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
-uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
-uploadZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  uploadZone.classList.remove('dragover');
-  const files = e.dataTransfer.files;
-  if (files.length > 0) handleFile(files[0]);
-});
-
-fileInput.addEventListener('change', () => {
-  if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
-});
-
-function handleFile(file) {
-  const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp'];
-  if (!validTypes.includes(file.type)) {
-    alert('Invalid file type. Please upload JPG, PNG, WEBP, or BMP.');
-    return;
-  }
-  if (file.size > 10 * 1024 * 1024) {
-    alert('File too large. Maximum size is 10 MB.');
-    return;
-  }
-
-  currentFile = file;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    currentImageDataURL = e.target.result;
-    previewImg.src = e.target.result;
-    previewArea.classList.add('visible');
-    uploadZone.style.display = 'none';
-    $('#fileName').textContent = file.name;
-    $('#fileSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
-    btnAnalyze.disabled = false;
-  };
-  reader.readAsDataURL(file);
-}
-
-btnRemove.addEventListener('click', () => {
-  currentFile = null;
-  currentImageDataURL = null;
-  previewImg.src = '';
-  previewArea.classList.remove('visible');
-  uploadZone.style.display = '';
-  btnAnalyze.disabled = true;
-  fileInput.value = '';
-  resetResults();
-});
-
-function resetResults() {
-  resultPlaceholder.style.display = '';
-  resultContent.classList.remove('visible');
-  sectionAnnotated.classList.remove('visible');
-  sectionStats.classList.remove('visible');
-  invalidNote.classList.remove('visible');
-  sessionMatrix = blankMatrix();
-  resetClassMatrices();
-  displayMatrixMetrics(sessionMatrix);
-  renderPerformanceTable();
-  currentResult = null;
-}
-
-function validateUltrasoundImage(dataUrl) {
-  return new Promise((resolve, reject) => {
-    const img = new window.Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const maxSide = 160;
-      const scale = Math.min(maxSide / img.width, maxSide / img.height, 1);
-      canvas.width = Math.max(1, Math.round(img.width * scale));
-      canvas.height = Math.max(1, Math.round(img.height * scale));
-
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-      let grayLike = 0;
-      let saturationSum = 0;
-      let total = 0;
-
-      for (let i = 0; i < pixels.length; i += 4) {
-        const r = pixels[i];
-        const g = pixels[i + 1];
-        const b = pixels[i + 2];
-        const max = Math.max(r, g, b);
-        const min = Math.min(r, g, b);
-        if (Math.abs(r - g) <= 22 && Math.abs(g - b) <= 22 && Math.abs(r - b) <= 22) {
-          grayLike += 1;
-        }
-        saturationSum += max ? (max - min) / max : 0;
-        total += 1;
-      }
-
-      const grayRatio = total ? grayLike / total : 0;
-      const avgSaturation = total ? saturationSum / total : 1;
-      resolve(grayRatio >= 0.62 && avgSaturation <= 0.22);
-    };
-    img.onerror = reject;
-    img.src = dataUrl;
-  });
-}
-
-function invalidInputResult() {
-  const actual = currentGroundTruth();
-  const event = eventMatrixFromLabels(actual, NOT_ULTRASOUND_LABEL, false);
-  return {
-    top_prediction: NOT_ULTRASOUND_LABEL,
-    predicted_label: NOT_ULTRASOUND_LABEL,
-    actual_label: actual,
-    confidence: 0,
-    top_k_predictions: [],
-    status: 'Invalid input',
-    clinical_note: 'Invalid input: Please upload a fetal ultrasound image.',
-    processing_time_ms: 0,
-    image_size: [0, 0],
-    model_version: 'fetal_yolov8s_v1',
-    is_ultrasound: false,
-    event_matrix: event,
-  };
-}
-
-// ── ANALYZE ────────────────────────────────
-btnAnalyze.addEventListener('click', async () => {
-  if (!currentFile) return;
-
-  btnAnalyze.classList.add('loading');
-  btnAnalyze.disabled = true;
-  resetResults();
-
-  try {
-    const isUltrasound = await validateUltrasoundImage(currentImageDataURL);
-    let result;
-    if (!isUltrasound && DEMO_MODE) {
-      result = invalidInputResult();
-    } else if (DEMO_MODE) {
-      result = await demoInference();
-    } else {
-      result = await apiInference();
-    }
-    currentResult = result;
-    displayResults(result);
-  } catch (err) {
-    alert('Analysis failed: ' + err.message);
-  } finally {
-    btnAnalyze.classList.remove('loading');
-    btnAnalyze.disabled = false;
-  }
-});
-
-// ── DEMO INFERENCE ────────────────────────
-function demoInference() {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Demo mode is static unless the filename clearly names a class.
-      let picked = 'Fetal brain';
-      const fname = currentFile ? currentFile.name.toLowerCase() : '';
-      for (const cn of CLASS_NAMES) {
-        if (fname.includes(cn.toLowerCase().replace(/\s/g, '_')) ||
-            fname.includes(cn.toLowerCase().replace(/\s/g, '-'))) {
-          picked = cn;
-          break;
-        }
-      }
-      if (fname.includes('brain')) picked = 'Fetal brain';
-      else if (fname.includes('abdomen')) picked = 'Fetal abdomen';
-      else if (fname.includes('femur')) picked = 'Fetal femur';
-      else if (fname.includes('thorax')) picked = 'Fetal thorax';
-      else if (fname.includes('cervix')) picked = 'Maternal cervix';
-      else if (fname.includes('cerebellum')) picked = 'Trans-cerebellum';
-      else if (fname.includes('thalamic')) picked = 'Trans-thalamic';
-      else if (fname.includes('ventricular')) picked = 'Trans-ventricular';
-
-      const topConf = 0.92;
-      const others = CLASS_NAMES.filter(c => c !== picked);
-      const second = 0.05;
-      const third = 0.03;
-      const actual = currentGroundTruth();
-      const event = eventMatrixFromLabels(actual, picked, true);
-
-      resolve({
-        top_prediction: picked,
-        predicted_label: picked,
-        actual_label: actual,
-        confidence: parseFloat(topConf.toFixed(4)),
-        top_k_predictions: [
-          { class: picked, confidence: parseFloat(topConf.toFixed(4)) },
-          { class: others[0], confidence: parseFloat(second.toFixed(4)) },
-          { class: others[1], confidence: parseFloat(third.toFixed(4)) },
-        ],
-        status: picked === 'Other' ? 'Review Needed — Non-standard View' : 'Normal',
-        clinical_note: CLASS_DATA[picked].note,
-        processing_time_ms: 42.5,
-        image_size: [224, 224],
-        model_version: "fetal_yolov8s_v1",
-        is_ultrasound: true,
-        event_matrix: event
-      });
-    }, 1500);
-  });
-}
-
-// ── API INFERENCE ─────────────────────────
-async function apiInference() {
-  const formData = new FormData();
-  formData.append('image', currentFile);
-  formData.append('ground_truth', currentGroundTruth());
-
-  const resp = await fetch(API_BASE_URL + '/predict', {
-    method: 'POST',
-    body: formData,
-  });
-
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.error || `Server error: ${resp.status}`);
-  }
-
-  return await resp.json();
-}
-
-// ── DISPLAY RESULTS ───────────────────────
-btnStartCamera.addEventListener('click', startRealtimeAnalysis);
-btnStopCamera.addEventListener('click', stopCamera);
-
-async function startRealtimeAnalysis() {
-  try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: { width: { ideal: 640 }, height: { ideal: 480 } },
-      audio: false,
-    });
-    liveVideo.srcObject = cameraStream;
-    videoWrap.classList.add('visible');
-    btnStartCamera.disabled = true;
-    btnStopCamera.disabled = false;
-    liveStatus.textContent = 'Real-time analysis running. Capturing one frame every 2 seconds.';
-    resultPlaceholder.style.display = 'none';
-    resultContent.classList.add('visible');
-    displayMatrixMetrics(sessionMatrix);
-
-    await liveVideo.play();
-    await analyzeCameraFrame();
-    realtimeTimer = window.setInterval(analyzeCameraFrame, 2000);
-  } catch (err) {
-    liveStatus.textContent = 'Camera could not start: ' + err.message;
-  }
-}
-
-function stopCamera() {
-  if (realtimeTimer) {
-    window.clearInterval(realtimeTimer);
-    realtimeTimer = null;
-  }
-  if (cameraStream) {
-    cameraStream.getTracks().forEach((track) => track.stop());
-    cameraStream = null;
-  }
-  liveVideo.srcObject = null;
-  videoWrap.classList.remove('visible');
-  btnStartCamera.disabled = false;
-  btnStopCamera.disabled = true;
-  realtimeBusy = false;
-  liveStatus.textContent = 'Camera is stopped.';
-}
-
-function captureVideoFrame() {
-  const canvas = document.createElement('canvas');
-  canvas.width = liveVideo.videoWidth || 640;
-  canvas.height = liveVideo.videoHeight || 480;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(liveVideo, 0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL('image/jpeg', 0.85);
-}
-
-async function analyzeCameraFrame() {
-  if (!cameraStream || realtimeBusy || !liveVideo.videoWidth) return;
-  realtimeBusy = true;
-
-  try {
-    const frameDataUrl = captureVideoFrame();
-    currentImageDataURL = frameDataUrl;
-    let result;
-
-    const isUltrasound = await validateUltrasoundImage(frameDataUrl);
-    if (!isUltrasound && DEMO_MODE) {
-      result = invalidInputResult();
-    } else if (DEMO_MODE) {
-      result = await demoInference();
-    } else {
-      result = await apiFrameInference(frameDataUrl);
-    }
-
-    displayResults(result);
-    liveStatus.textContent = 'Last frame analyzed at ' + new Date().toLocaleTimeString();
-  } catch (err) {
-    liveStatus.textContent = 'Real-time analysis error: ' + err.message;
-  } finally {
-    realtimeBusy = false;
-  }
-}
-
-async function apiFrameInference(frameDataUrl) {
-  const resp = await fetch(API_BASE_URL + '/predict/base64', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      image: frameDataUrl,
-      ground_truth: currentGroundTruth(),
-    }),
-  });
-
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.error || `Server error: ${resp.status}`);
-  }
-
-  return await resp.json();
-}
-
-function displayResults(result) {
-  const actual = result.actual_label || currentGroundTruth();
-  const predicted = result.predicted_label || result.top_prediction;
-  const event = result.event_matrix || eventMatrixFromLabels(actual, predicted, result.is_ultrasound !== false);
-  addToSessionMatrix(event);
-  addToClassMatrices(actual, predicted, result.is_ultrasound !== false);
-  Object.assign(result, metricsFromMatrix(sessionMatrix));
-  currentResult = result;
-  resultPlaceholder.style.display = 'none';
-  resultContent.classList.add('visible');
-  sectionStats.classList.add('visible');
-
-  const cls = result.top_prediction;
-  const conf = result.confidence;
-  const data = CLASS_DATA[cls] || CLASS_DATA['Other'];
-  const isInvalid = result.is_ultrasound === false || cls === NOT_ULTRASOUND_LABEL;
-  invalidNote.classList.toggle('visible', isInvalid);
-
-  // Detection card
-  $('#detectionIcon').innerHTML = data.icon;
-  $('#detectionClass').textContent = cls;
-
-  const badge = $('#statusBadge');
-  const statusText = $('#statusText');
-  if (isInvalid) {
-    badge.className = 'status-badge abnormal';
-    statusText.textContent = 'INVALID INPUT';
-  } else if (result.status.includes('Normal')) {
-    badge.className = 'status-badge normal';
-    statusText.textContent = 'NORMAL';
-  } else if (result.status.includes('Uncertain')) {
-    badge.className = 'status-badge uncertain';
-    statusText.textContent = 'UNCERTAIN';
-  } else {
-    badge.className = 'status-badge abnormal';
-    statusText.textContent = 'REVIEW NEEDED';
-  }
-
-  // Confidence bar
-  const fill = $('#confBarFill');
-  const confVal = $('#confValue');
-  fill.className = 'conf-bar-fill ' + (conf > 0.8 ? 'high' : conf > 0.6 ? 'med' : 'low');
-  requestAnimationFrame(() => {
-    fill.style.width = (conf * 100) + '%';
-  });
-  animateCountUp(confVal, 0, conf * 100, 1000, '%');
-
-  // Top-K
-  const topKContainer = $('#topKContainer');
-  topKContainer.innerHTML = '';
-  const topK = result.top_k_predictions || [];
-  if (!topK.length) {
-    topKContainer.innerHTML = '<div class="topk-row"><span class="topk-name">No fetal structure detected</span><span class="topk-conf">0%</span></div>';
-  }
-  topK.forEach((pred, i) => {
-    const row = document.createElement('div');
-    row.className = 'topk-row';
-    row.style.animationDelay = (i * 0.15) + 's';
-    row.innerHTML = `
-      <span class="topk-rank">#${i + 1}</span>
-      <span class="topk-name">${pred.class}</span>
-      <div class="topk-bar"><div class="topk-bar-fill" id="topkBar${i}"></div></div>
-      <span class="topk-conf">${(pred.confidence * 100).toFixed(1)}%</span>
-    `;
-    topKContainer.appendChild(row);
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        const barEl = document.getElementById('topkBar' + i);
-        if (barEl) barEl.style.width = (pred.confidence * 100) + '%';
-      }, 200 + i * 150);
-    });
-  });
-
-  displayMatrixMetrics(sessionMatrix);
-  renderPerformanceTable();
-
-  // Clinical note
-  $('#clinicalNote').textContent = result.clinical_note || data.note;
-
-  // Demo notice
-  demoNotice.classList.toggle('visible', DEMO_MODE);
-
-  // Show annotated section
-  showAnnotated(result);
-}
-
-function formatPercent(value) {
-  const num = Number(value || 0);
-  return Number.isInteger(num) ? num.toFixed(0) + '%' : num.toFixed(1) + '%';
-}
-
-function displayMatrixMetrics(result) {
-  const metrics = metricsFromMatrix(result);
-  $('#matrixTP').textContent = metrics.TP;
-  $('#matrixTN').textContent = metrics.TN;
-  $('#matrixFP').textContent = metrics.FP;
-  $('#matrixFN').textContent = metrics.FN;
-  $('#metricAccuracy').textContent = formatPercent(metrics.accuracy);
-  $('#metricPrecision').textContent = formatPercent(metrics.precision);
-  $('#metricRecall').textContent = formatPercent(metrics.recall);
-  $('#metricF1').textContent = formatPercent(metrics.f1_score);
-  $('#dashAccuracy').textContent = formatPercent(metrics.accuracy);
-  $('#dashPrecision').textContent = formatPercent(metrics.precision);
-  $('#dashRecall').textContent = formatPercent(metrics.recall);
-  $('#dashF1').textContent = formatPercent(metrics.f1_score);
-}
-
-function f1Class(value) {
-  if (value >= 90) return 'f1-high';
-  if (value >= 70) return 'f1-med';
-  return 'f1-low';
-}
-
-function renderPerformanceTable() {
-  if (!perfTableBody) return;
-  const labels = Object.keys(classMatrices);
-  perfTableBody.innerHTML = '';
-
-  if (!labels.length) {
-    perfTableBody.innerHTML = '<tr><td colspan="5">Upload and analyze an image to calculate dashboard metrics.</td></tr>';
-    return;
-  }
-
-  labels.forEach((label) => {
-    const metrics = metricsFromMatrix(classMatrices[label]);
-    const isNormal = metrics.f1_score >= 70;
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td class="perf-class">${label}</td>
-      <td>${formatPercent(metrics.precision)}</td>
-      <td>${formatPercent(metrics.recall)}</td>
-      <td><span class="f1-badge ${f1Class(metrics.f1_score)}">${formatPercent(metrics.f1_score)}</span></td>
-      <td class="${isNormal ? 'status-normal' : 'status-review'}">${isNormal ? 'Normal' : 'Review'}</td>
-    `;
-    perfTableBody.appendChild(row);
-  });
-}
-
-function animateCountUp(el, from, to, duration, suffix) {
-  const start = performance.now();
-  function update(now) {
-    const elapsed = now - start;
-    const progress = Math.min(elapsed / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    const current = from + (to - from) * eased;
-    el.textContent = current.toFixed(1) + suffix;
-    if (progress < 1) requestAnimationFrame(update);
-  }
-  requestAnimationFrame(update);
-}
-
-// ── ANNOTATED IMAGE ───────────────────────
-function showAnnotated(result) {
-  sectionAnnotated.classList.add('visible');
-
-  // Original
-  const origDisplay = $('#origDisplay');
-  origDisplay.src = currentImageDataURL;
-
-  // Draw annotation on canvas
-  const canvas = $('#annotatedCanvas');
-  const ctx = canvas.getContext('2d');
-  const img = new window.Image();
-  img.onload = () => {
-    canvas.width = 448;
-    canvas.height = 448;
-    ctx.drawImage(img, 0, 0, 448, 448);
-
-    // Draw bounding box
-    const pad = 40;
-    const bw = 448 - pad * 2;
-    const bh = 448 - pad * 2;
-    const isNormal = result.status.includes('Normal');
-    ctx.strokeStyle = isNormal ? '#00C9A7' : '#E05C5C';
-    ctx.lineWidth = 3;
-    ctx.setLineDash([8, 4]);
-    ctx.strokeRect(pad, pad, bw, bh);
-    ctx.setLineDash([]);
-
-    // Label background
-    const label = result.top_prediction + ' (' + (result.confidence * 100).toFixed(1) + '%)';
-    ctx.font = 'bold 16px "DM Sans", sans-serif';
-    const tw = ctx.measureText(label).width;
-    ctx.fillStyle = isNormal ? '#0D6E6E' : '#E05C5C';
-    ctx.fillRect(pad, pad - 28, tw + 20, 28);
-    ctx.fillStyle = '#fff';
-    ctx.fillText(label, pad + 10, pad - 8);
-
-    // Status badge
-    const statusLabel = isNormal ? 'NORMAL' : 'REVIEW';
-    ctx.font = 'bold 12px "DM Sans", sans-serif';
-    const sw = ctx.measureText(statusLabel).width;
-    ctx.fillStyle = isNormal ? 'rgba(0,201,167,0.85)' : 'rgba(224,92,92,0.85)';
-    ctx.fillRect(448 - pad - sw - 16, pad + 8, sw + 16, 24);
-    ctx.fillStyle = '#fff';
-    ctx.fillText(statusLabel, 448 - pad - sw - 8, pad + 24);
-
-    // TB Solutions watermark
-    ctx.font = '11px "DM Sans", sans-serif';
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.fillText('TB Solutions', 448 - 90, 448 - 10);
-  };
-  img.src = currentImageDataURL;
-}
-
-// ── DOWNLOADS ─────────────────────────────
-$('#btnDownloadOrig').addEventListener('click', () => {
-  if (!currentImageDataURL) return;
-  downloadDataURL(currentImageDataURL, 'original_ultrasound.png');
-});
-
-$('#btnDownloadAnnotated').addEventListener('click', () => {
-  const canvas = $('#annotatedCanvas');
-  canvas.toBlob((blob) => {
-    if (!blob) return;
-    const url = URL.createObjectURL(blob);
-    downloadDataURL(url, 'annotated_result.png');
-    URL.revokeObjectURL(url);
-  }, 'image/png');
-});
-
-function downloadDataURL(url, filename) {
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-
-// ── REPORT ────────────────────────────────
-$('#btnReport').addEventListener('click', () => {
-  if (!currentResult) return;
-  const r = currentResult;
-  const now = new Date().toLocaleString();
-  const rc = $('#reportContent');
-  rc.innerHTML = `
-    <h2>🩺 Fetal Ultrasound Analysis Report</h2>
-    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:20px;">Generated: ${now} | Model: ${r.model_version}</p>
-    <div class="report-row"><span>Detected Structure</span><span>${r.top_prediction}</span></div>
-    <div class="report-row"><span>Confidence</span><span>${(r.confidence*100).toFixed(1)}%</span></div>
-    <div class="report-row"><span>Status</span><span>${r.status}</span></div>
-    <div class="report-row"><span>Processing Time</span><span>${r.processing_time_ms.toFixed(1)} ms</span></div>
-    <h3 style="margin-top:20px;font-family:var(--font-display);color:var(--primary-dark);">Confusion Matrix</h3>
-    <div class="report-row"><span>TP / TN</span><span>${r.TP} / ${r.TN}</span></div>
-    <div class="report-row"><span>FP / FN</span><span>${r.FP} / ${r.FN}</span></div>
-    <h3 style="margin-top:20px;font-family:var(--font-display);color:var(--primary-dark);">Metrics</h3>
-    <div class="report-row"><span>Accuracy</span><span>${formatPercent(r.accuracy)}</span></div>
-    <div class="report-row"><span>Precision</span><span>${formatPercent(r.precision)}</span></div>
-    <div class="report-row"><span>Recall</span><span>${formatPercent(r.recall)}</span></div>
-    <div class="report-row"><span>F1 Score</span><span>${formatPercent(r.f1_score)}</span></div>
-    <div class="report-row"><span>Image Size</span><span>${r.image_size.join(' × ')} px</span></div>
-    <h3 style="margin-top:20px;font-family:var(--font-display);color:var(--primary-dark);">Top Predictions</h3>
-    ${r.top_k_predictions.map((p,i) => `<div class="report-row"><span>#${i+1} ${p.class}</span><span>${(p.confidence*100).toFixed(1)}%</span></div>`).join('')}
-    <h3 style="margin-top:20px;font-family:var(--font-display);color:var(--primary-dark);">Clinical Note</h3>
-    <p style="font-size:0.9rem;line-height:1.7;margin-top:8px;">${r.clinical_note}</p>
-    <p style="font-size:0.75rem;color:var(--muted);margin-top:16px;font-style:italic;">⚕️ This report is for educational purposes only. Not a medical diagnosis.</p>
-    <div class="report-actions">
-      <button class="btn-download" onclick="window.print()">🖨️ Print Report</button>
-      <button class="btn-download" onclick="document.getElementById('reportOverlay').classList.remove('visible')">Close</button>
-    </div>
-  `;
-  reportOverlay.classList.add('visible');
-});
-
-reportOverlay.addEventListener('click', (e) => {
-  if (e.target === reportOverlay) reportOverlay.classList.remove('visible');
-});
-
-// ── STATS DASHBOARD ───────────────────────
-function populatePerformanceTable() {
-  const tbody = $('#perfTableBody');
-  tbody.innerHTML = '';
-  for (const [cls, data] of Object.entries(CLASS_DATA)) {
-    const f1Class = data.f1 >= 95 ? 'f1-high' : data.f1 >= 93 ? 'f1-med' : 'f1-low';
-    const statusLabel = cls === 'Other' ? 'Info' : 'Normal';
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td style="font-weight:600">${cls}</td>
-      <td>${data.prec.toFixed(1)}%</td>
-      <td>${data.rec.toFixed(1)}%</td>
-      <td><span class="f1-badge ${f1Class}">${data.f1.toFixed(1)}%</span></td>
-      <td>${statusLabel}</td>
-    `;
-    tbody.appendChild(tr);
-  }
-}
-
-// ── COUNT-UP ANIMATION ON SCROLL ────────
-function initCountUpOnScroll() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const el = entry.target;
-        const target = parseFloat(el.dataset.target);
-        if (!el.dataset.animated) {
-          el.dataset.animated = 'true';
-          animateCountUp(el, 0, target, 1500, '%');
-        }
-      }
-    });
-  }, { threshold: 0.5 });
-
-  document.querySelectorAll('.stat-value[data-target]').forEach(el => observer.observe(el));
-}
-
-// ── INIT ────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  displayMatrixMetrics(sessionMatrix);
-  initCountUpOnScroll();
-});
-</script>
+<script src="/static/app.js"></script>
 </body>
 </html>

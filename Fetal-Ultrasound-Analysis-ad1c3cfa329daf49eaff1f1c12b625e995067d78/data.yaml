@@ -1,0 +1,19 @@
+# Fetal Ultrasound Detection Dataset
+# Auto-generated sample dataset for demo/training
+
+path: D:\Fetal-Ultrasound-Analysis-ad1c3cfa329daf49eaff1f1c12b625e995067d78\Fetal-Ultrasound-Analysis-ad1c3cfa329daf49eaff1f1c12b625e995067d78\dataset
+train: images/train
+val: images/val
+test: images/test
+
+nc: 9
+names:
+  0: Fetal abdomen
+  1: Fetal brain
+  2: Fetal femur
+  3: Fetal thorax
+  4: Maternal cervix
+  5: Trans-cerebellum
+  6: Trans-thalamic
+  7: Trans-ventricular
+  8: Other

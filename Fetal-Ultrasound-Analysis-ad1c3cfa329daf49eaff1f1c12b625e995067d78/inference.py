@@ -104,13 +104,40 @@ CLINICAL_NOTES = {
         "The image does not clearly match any of the 8 standard "
         "anatomical views. Manual review recommended."
     ),
+    "fetal_femur": (
+        "Fetal femur plane detected. Femur length measurement from this "
+        "view is used for fetal growth and gestational age assessment."
+    ),
+    "fetal_abdomen": (
+        "Fetal abdomen plane detected. This view is used for abdominal "
+        "circumference and fetal growth assessment."
+    ),
+    "fetal_brain": (
+        "Fetal brain plane detected. This view supports fetal head and "
+        "neurodevelopmental assessment."
+    ),
+    "fetal_thorax": (
+        "Fetal thorax plane detected. This view supports cardiac and thoracic "
+        "screening in ultrasound."
+    ),
+    "fetal_skull": (
+        "Fetal skull plane detected. This view can support head measurement "
+        "and cranial structure review."
+    ),
+    "fetal_spine": (
+        "Fetal spine plane detected. This view supports spinal anatomy review."
+    ),
 }
+
+EXPECTED_CLASS_NAMES = list(CLINICAL_NOTES)
+EXPECTED_CLASSES = set(EXPECTED_CLASS_NAMES)
 
 # Default class presumed normal (all known anatomical planes)
 NORMAL_CLASSES = {
     "Fetal abdomen", "Fetal brain", "Fetal femur", "Fetal thorax",
     "Maternal cervix", "Trans-cerebellum", "Trans-thalamic",
-    "Trans-ventricular",
+    "Trans-ventricular", "fetal_femur", "fetal_abdomen", "fetal_brain",
+    "fetal_thorax", "fetal_skull", "fetal_spine",
 }
 
 # Model version tag
@@ -149,6 +176,16 @@ def load_model(model_path, device=None):
 
     # Load model
     model = YOLO(model_path)
+    class_names = set(model.names.values())
+    has_fetal_classes = bool(class_names & EXPECTED_CLASSES)
+    if not has_fetal_classes:
+        import logging
+        logging.getLogger(__name__).warning(
+            "Model classes do not match fetal ultrasound classes. "
+            f"Got {len(class_names)} classes. The model will still load "
+            "for demo purposes but predictions may not be clinically meaningful. "
+            "Train a fetal model for accurate results."
+        )
 
     # Warm up with a dummy image
     dummy = np.zeros((224, 224, 3), dtype=np.uint8)
@@ -314,6 +351,61 @@ def predict(image_input, model, top_k=3, conf_threshold=0.5,
     result = results[0]
     probs = result.probs
     class_names = model.names  # {idx: name}
+    model_type = "Classification" if probs is not None else "Detection"
+
+    if probs is None and getattr(result, "boxes", None) is not None:
+        boxes = result.boxes
+        elapsed_ms = (time.time() - start_time) * 1000
+        if boxes is None or boxes.cls is None or len(boxes) == 0:
+            return {
+                "top_prediction": "Other",
+                "confidence": 0,
+                "top_k_predictions": [],
+                "status": "Uncertain - No detection",
+                "clinical_note": CLINICAL_NOTES["Other"],
+                "processing_time_ms": round(elapsed_ms, 1),
+                "image_size": [target_size, target_size],
+                "model_version": MODEL_VERSION,
+                "model_type": "Detection",
+            }
+
+        cls_ids = boxes.cls.cpu().numpy().astype(int)
+        confs = boxes.conf.cpu().numpy()
+        best_by_class = {}
+        for cls_id, conf in zip(cls_ids, confs):
+            best_by_class[cls_id] = max(float(conf), best_by_class.get(cls_id, 0))
+
+        top_items = sorted(best_by_class.items(), key=lambda item: item[1], reverse=True)[:top_k]
+        top_k_predictions = [
+            {"class": class_names[int(cls_id)], "confidence": round(conf, 4)}
+            for cls_id, conf in top_items
+        ]
+        top_pred = top_k_predictions[0]
+        top_class = top_pred["class"]
+        top_conf = top_pred["confidence"]
+        if top_conf < conf_threshold:
+            status = "Uncertain - Low Confidence"
+        elif top_class in NORMAL_CLASSES:
+            status = "Normal"
+        elif top_class == "Other":
+            status = "Review Needed - Non-standard View"
+        else:
+            status = "Normal"
+
+        return {
+            "top_prediction": top_class,
+            "confidence": round(top_conf, 4),
+            "top_k_predictions": top_k_predictions,
+            "status": status,
+            "clinical_note": CLINICAL_NOTES.get(top_class, f"Detected structure: {top_class}."),
+            "processing_time_ms": round(elapsed_ms, 1),
+            "image_size": [target_size, target_size],
+            "model_version": MODEL_VERSION,
+            "model_type": "Detection",
+        }
+
+    if probs is None:
+        raise RuntimeError("YOLO result did not include classification probabilities or detection boxes.")
 
     # ---- Extract top-K predictions ----
     probs_np = probs.data.cpu().numpy()
@@ -361,6 +453,7 @@ def predict(image_input, model, top_k=3, conf_threshold=0.5,
         "processing_time_ms": round(elapsed_ms, 1),
         "image_size": [target_size, target_size],
         "model_version": MODEL_VERSION,
+        "model_type": model_type,
     }
 
 
@@ -377,7 +470,6 @@ def annotate_image(original_image, prediction_dict):
         - Confidence bar (horizontal, teal fill)
         - Status badge with colored border (green=Normal, red=Abnormal)
         - Top-3 predictions overlay
-        - TB Solutions watermark (bottom-right, subtle)
 
     Args:
         original_image: PIL.Image or path to image.
@@ -491,11 +583,6 @@ def annotate_image(original_image, prediction_dict):
         text = f"#{i+1} {cls_name}: {cls_conf*100:.1f}%"
         color = WHITE if i == 0 else GRAY
         draw.text((10, y_offset + i * 18), text, fill=color, font=font_small)
-
-    # ---- 5. TB Solutions watermark ----
-    watermark = "TB Solutions"
-    draw.text((W - 100, H - 18), watermark, fill=(255, 255, 255, 80),
-              font=font_small)
 
     return img
 
