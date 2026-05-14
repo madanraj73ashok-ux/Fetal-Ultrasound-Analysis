@@ -1,6 +1,6 @@
----
+﻿---
 title: FetalNet Ai
-emoji: ??
+emoji: 🔬
 colorFrom: blue
 colorTo: pink
 sdk: gradio
