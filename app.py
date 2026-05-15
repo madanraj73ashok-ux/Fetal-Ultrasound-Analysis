@@ -3,18 +3,26 @@ from ultralytics import YOLO
 import cv2
 import os
 
-# Model path logic
+# --- MODEL LOADING ---
+# Checks both locations so we don't break the path
 model_path = "best.pt"
 if not os.path.exists(model_path):
     model_path = "Fetal-Ultrasound-Analysis-ad1c3cfa329daf49eaff1f1c12b625e995067d78/best.pt"
 
-model = YOLO(model_path)
+try:
+    model = YOLO(model_path)
+except Exception as e:
+    print(f"Error: {e}")
+    model = None
 
 def predict(image):
+    if image is None or model is None:
+        return image
     results = model(image)
     res_plotted = results[0].plot()
     return cv2.cvtColor(res_plotted, cv2.COLOR_BGR2RGB)
 
+# --- CSS STYLING (YOUR EXACT LOOK) ---
 custom_css = """
 body {background-color: #0b1a19;}
 .gradio-container {background-color: #0b1a19 !important; color: white !important;}
@@ -63,6 +71,9 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
                     btn = gr.Button("START ANALYSIS", variant="primary")
                 with gr.Column():
                     output_img = gr.Image(type="numpy")
+            
+            # This is the line that makes the button work!
+            btn.click(fn=predict, inputs=input_img, outputs=output_img)
         
         with gr.Tab("Evaluation Metrics"):
             gr.HTML(stats_html)
