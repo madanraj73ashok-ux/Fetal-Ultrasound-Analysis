@@ -232,3 +232,22 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 
 /* Success text */
 .training-success{color:var(--accent);font-weight:800}
+
+/* Custom Table Badges */
+.pill-perf {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-weight: bold;
+  font-size: 13px;
+  text-align: center;
+}
+.pill-green {
+  background: #d1fae5;
+  color: #0b6e6e;
+}
+.pill-orange {
+  background: #fef3c7;
+  color: #d97706;
+}
+

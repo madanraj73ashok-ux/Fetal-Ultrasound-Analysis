@@ -11,3 +11,5 @@ dataset/
 dataset_cls/
 .env
 *.pptx
+*.pt
+*.pt.bak

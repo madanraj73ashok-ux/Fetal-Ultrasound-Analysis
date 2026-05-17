@@ -29,10 +29,9 @@ function navigate(hash) {
   });
   $('.nav-links')?.classList.remove('open');
 
-  // Load data for relevant pages
   if (page === 'evaluation') loadEvaluation();
   if (page === 'dataset') loadDatasetStatus();
-  if (page === 'training') startTrainingPolling();
+  if (page === 'training' && $('#page-training')) startTrainingPolling();
   else stopTrainingPolling();
 }
 window.addEventListener('hashchange', () => navigate(location.hash));
@@ -287,6 +286,7 @@ function renderMetrics(grid, metrics) {
 /* ── DATASET STATUS ──────────────── */
 async function loadDatasetStatus() {
   const container = $('#datasetContainer');
+  if (!container) return;
   try {
     const resp = await fetch(API + '/dataset/status');
     const data = await resp.json();

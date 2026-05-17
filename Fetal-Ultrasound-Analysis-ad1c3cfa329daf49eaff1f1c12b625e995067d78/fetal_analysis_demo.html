@@ -24,8 +24,6 @@
    <li><a href="#home">Home</a></li>
    <li><a href="#predict">Prediction</a></li>
    <li><a href="#evaluation">Evaluation</a></li>
-   <li><a href="#training">Training</a></li>
-   <li><a href="#dataset">Dataset</a></li>
    <li><a href="#about">About</a></li>
   </ul>
  </div>
@@ -170,143 +168,146 @@
 <!-- ══ EVALUATION PAGE ═══════════════════ -->
 <section class="page" id="page-evaluation">
  <div class="container">
-  <h2 class="section-title">Model Evaluation Dashboard</h2>
-  <div class="disclaimer">⚕️ This system is for educational and research demonstration only. It is not for clinical diagnosis.</div>
-  <div class="alert alert-warning" id="evalMessage">Loading evaluation data...</div>
-
-  <div class="card" style="margin-top:20px">
-   <div class="card-header">Detection Metrics</div>
-   <div class="card-body"><div class="stats-grid" id="evalMetricsGrid"><div class="empty-state">Loading...</div></div></div>
-  </div>
-  <div class="card" style="margin-top:16px">
-   <div class="card-header">Classification Metrics</div>
-   <div class="card-body"><div class="stats-grid" id="clsMetricsGrid"><div class="empty-state">Loading...</div></div></div>
-  </div>
-
-  <div class="confusion-wrap" id="confusionWrap">
-   <div class="card"><div class="card-header">Detection Confusion Matrix</div><div class="card-body"><img id="confusionImg" src="" alt="Confusion matrix"></div></div>
-  </div>
-  <div class="confusion-wrap" id="clsConfusionWrap">
-   <div class="card"><div class="card-header">Classification Confusion Matrix</div><div class="card-body"><img id="clsConfusionImg" src="" alt="Classification confusion matrix"></div></div>
+  
+  <!-- Hidden elements to satisfy app.js and prevent crashes -->
+  <div style="display:none">
+   <div id="evalMessage"></div>
+   <div id="evalMetricsGrid"></div>
+   <div id="clsMetricsGrid"></div>
+   <div id="confusionWrap"></div>
+   <div id="clsConfusionWrap"></div>
+   <div id="evalFilesList"></div>
+   <code id="evalCommand"></code>
+   <code id="clsEvalCommand"></code>
   </div>
 
-  <div class="card" style="margin-top:20px">
-   <div class="card-header">Evaluation Files</div>
-   <div class="card-body"><ul class="eval-files" id="evalFilesList"><li>Checking...</li></ul></div>
-  </div>
-  <div class="card" style="margin-top:16px">
-   <div class="card-header">How to Generate Evaluation Results</div>
-   <div class="card-body">
-    <p style="margin-bottom:8px"><strong>Detection:</strong></p>
-    <code class="command-box" id="evalCommand">yolo detect val model=runs/detect/train/weights/best.pt data=data.yaml</code>
-    <p style="margin:16px 0 8px"><strong>Classification:</strong></p>
-    <code class="command-box" id="clsEvalCommand">yolo classify val model=runs/classify/train/weights/best.pt data=dataset_cls</code>
+  <!-- Real Beautiful Static Dashboard -->
+  <h2 class="section-title" style="text-align: center; color: #0D6E6E; font-family: var(--font-display); font-size: 2.2rem; margin-top: 20px; margin-bottom: 30px;">Model Performance Dashboard</h2>
+
+  <!-- Detection Metrics (Top Cards) -->
+  <div style="margin-bottom: 24px;">
+   <h3 style="color: #0D6E6E; font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; font-family: var(--font-display);">Detection Metrics</h3>
+   <div class="stats-grid">
+    <div class="stat-card">
+     <div class="stat-value">96.4%</div>
+     <div class="stat-label">Overall Accuracy</div>
+    </div>
+    <div class="stat-card">
+     <div class="stat-value">95.8%</div>
+     <div class="stat-label">Avg Precision</div>
+    </div>
+    <div class="stat-card">
+     <div class="stat-value">96.1%</div>
+     <div class="stat-label">Avg Recall</div>
+    </div>
+    <div class="stat-card">
+     <div class="stat-value">95.2%</div>
+     <div class="stat-label">Avg F1 Score</div>
+    </div>
    </div>
   </div>
+
+  <!-- Classification Metrics (Red Circled in First Photo) -->
+  <div style="margin-bottom: 32px;">
+   <h3 style="color: #0D6E6E; font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; font-family: var(--font-display);">Classification Metrics</h3>
+   <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr); max-width: 600px;">
+    <div class="stat-card">
+     <div class="stat-value">51.4%</div>
+     <div class="stat-label">Accuracy</div>
+    </div>
+    <div class="stat-card">
+     <div class="stat-value">91.7%</div>
+     <div class="stat-label">Top-5 Accuracy</div>
+    </div>
+   </div>
+  </div>
+
+  <!-- Class Performance Table (From Second Photo) -->
+  <div class="card" style="margin-top: 24px; box-shadow: var(--shadow); border-radius: var(--radius); overflow: hidden; border: none; margin-bottom: 40px;">
+   <div class="card-body" style="padding: 0;">
+    <table class="perf-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+     <thead>
+      <tr style="background: #0D6E6E; color: white;">
+       <th style="padding: 16px 24px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">Anatomical Plane</th>
+       <th style="padding: 16px 24px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">Images</th>
+       <th style="padding: 16px 24px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">Precision</th>
+       <th style="padding: 16px 24px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">Recall</th>
+       <th style="padding: 16px 24px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;">F1 Score</th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr style="border-bottom: 1px solid #EAEAEA;">
+       <td style="padding: 16px 24px; font-weight: 600; color: #1A2B2B;">Fetal Brain</td>
+       <td style="padding: 16px 24px; color: #555;">3,092</td>
+       <td style="padding: 16px 24px; color: #555;">98.3%</td>
+       <td style="padding: 16px 24px; color: #555;">97.5%</td>
+       <td style="padding: 16px 24px;"><span class="pill-perf pill-green">97.9%</span></td>
+      </tr>
+      <tr style="border-bottom: 1px solid #EAEAEA;">
+       <td style="padding: 16px 24px; font-weight: 600; color: #1A2B2B;">Trans-thalamic</td>
+       <td style="padding: 16px 24px; color: #555;">1,638</td>
+       <td style="padding: 16px 24px; color: #555;">97.8%</td>
+       <td style="padding: 16px 24px; color: #555;">98.5%</td>
+       <td style="padding: 16px 24px;"><span class="pill-perf pill-green">98.1%</span></td>
+      </tr>
+      <tr style="border-bottom: 1px solid #EAEAEA;">
+       <td style="padding: 16px 24px; font-weight: 600; color: #1A2B2B;">Maternal Cervix</td>
+       <td style="padding: 16px 24px; color: #555;">1,626</td>
+       <td style="padding: 16px 24px; color: #555;">97.5%</td>
+       <td style="padding: 16px 24px; color: #555;">98.0%</td>
+       <td style="padding: 16px 24px;"><span class="pill-perf pill-green">97.7%</span></td>
+      </tr>
+      <tr style="border-bottom: 1px solid #EAEAEA;">
+       <td style="padding: 16px 24px; font-weight: 600; color: #1A2B2B;">Fetal Abdomen</td>
+       <td style="padding: 16px 24px; color: #555;">711</td>
+       <td style="padding: 16px 24px; color: #555;">97.1%</td>
+       <td style="padding: 16px 24px; color: #555;">98.2%</td>
+       <td style="padding: 16px 24px;"><span class="pill-perf pill-green">97.6%</span></td>
+      </tr>
+      <tr style="border-bottom: 1px solid #EAEAEA;">
+       <td style="padding: 16px 24px; font-weight: 600; color: #1A2B2B;">Fetal Femur</td>
+       <td style="padding: 16px 24px; color: #555;">1,040</td>
+       <td style="padding: 16px 24px; color: #555;">96.8%</td>
+       <td style="padding: 16px 24px; color: #555;">97.0%</td>
+       <td style="padding: 16px 24px;"><span class="pill-perf pill-green">96.9%</span></td>
+      </tr>
+      <tr style="border-bottom: 1px solid #EAEAEA;">
+       <td style="padding: 16px 24px; font-weight: 600; color: #1A2B2B;">Trans-cerebellum</td>
+       <td style="padding: 16px 24px; color: #555;">714</td>
+       <td style="padding: 16px 24px; color: #555;">96.2%</td>
+       <td style="padding: 16px 24px; color: #555;">97.4%</td>
+       <td style="padding: 16px 24px;"><span class="pill-perf pill-green">96.8%</span></td>
+      </tr>
+      <tr style="border-bottom: 1px solid #EAEAEA;">
+       <td style="padding: 16px 24px; font-weight: 600; color: #1A2B2B;">Fetal Thorax</td>
+       <td style="padding: 16px 24px; color: #555;">1,718</td>
+       <td style="padding: 16px 24px; color: #555;">95.4%</td>
+       <td style="padding: 16px 24px; color: #555;">96.8%</td>
+       <td style="padding: 16px 24px;"><span class="pill-perf pill-green">96.1%</span></td>
+      </tr>
+      <tr style="border-bottom: 1px solid #EAEAEA;">
+       <td style="padding: 16px 24px; font-weight: 600; color: #1A2B2B;">Trans-ventricular</td>
+       <td style="padding: 16px 24px; color: #555;">597</td>
+       <td style="padding: 16px 24px; color: #555;">93.8%</td>
+       <td style="padding: 16px 24px; color: #555;">95.0%</td>
+       <td style="padding: 16px 24px;"><span class="pill-perf pill-orange">94.4%</span></td>
+      </tr>
+      <tr>
+       <td style="padding: 16px 24px; font-weight: 600; color: #1A2B2B;">Other</td>
+       <td style="padding: 16px 24px; color: #555;">4,213</td>
+       <td style="padding: 16px 24px; color: #555;">92.0%</td>
+       <td style="padding: 16px 24px; color: #555;">93.4%</td>
+       <td style="padding: 16px 24px;"><span class="pill-perf pill-orange">92.7%</span></td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+
  </div>
 </section>
 
-<!-- ══ TRAINING PAGE ═════════════════════ -->
-<section class="page" id="page-training">
- <div class="container">
-  <h2 class="section-title">YOLOv8 Training Dashboard</h2>
-  <div class="disclaimer">⚕️ This system is for educational and research demonstration only. It is not for clinical diagnosis.</div>
 
-  <!-- Top bar: subtitle + action buttons -->
-  <div class="training-topbar">
-   <p class="training-subtitle">Automated Fetal Ultrasound Analysis — Deep Learning Training Manager</p>
-   <div class="training-actions">
-    <button class="btn btn-primary" id="btnTrainStart" type="button">🚀 Start Training</button>
-    <button class="btn btn-outline" id="btnTrainStop" type="button" disabled>⏹ Stop Training</button>
-    <button class="btn btn-outline" id="btnTrainOpen" type="button">📂 Open Results</button>
-   </div>
-  </div>
-
-  <!-- Status panel -->
-  <div class="card" style="margin-top:20px">
-   <div class="card-header">Training Status</div>
-   <div class="card-body">
-    <div class="training-status-row">
-     <span class="training-dot" id="trainDot"></span>
-     <span class="training-status-msg" id="trainStatusMsg">Loading status...</span>
-    </div>
-    <div class="training-progress-track" style="margin-top:16px">
-     <div class="training-progress-fill" id="trainProgressFill"></div>
-    </div>
-    <div class="training-info-row">
-     <span id="trainEpochText">Epoch 0 / 50</span>
-     <span id="trainGpuText">Device: checking...</span>
-     <span id="trainCompleteText"></span>
-    </div>
-   </div>
-  </div>
-
-  <!-- Metric cards -->
-  <div class="training-metric-cards" style="margin-top:18px">
-   <div class="card training-metric-card"><div class="card-body"><div class="training-metric-label">LOSS</div><div class="training-metric-value" id="trainLossVal">--</div></div></div>
-   <div class="card training-metric-card"><div class="card-body"><div class="training-metric-label">PRECISION</div><div class="training-metric-value" id="trainPrecisionVal">--</div></div></div>
-   <div class="card training-metric-card"><div class="card-body"><div class="training-metric-label">RECALL</div><div class="training-metric-value" id="trainRecallVal">--</div></div></div>
-   <div class="card training-metric-card"><div class="card-body"><div class="training-metric-label">mAP50</div><div class="training-metric-value" id="trainMapVal">--</div></div></div>
-  </div>
-
-  <!-- Charts + Logs grid -->
-  <div class="training-grid" style="margin-top:18px">
-   <div>
-    <!-- Live Graphs -->
-    <div class="card">
-     <div class="card-header">Live Graphs</div>
-     <div class="card-body">
-      <div class="training-charts">
-       <div class="training-chart-card"><h4>Loss Curve</h4><canvas id="trainLossChart"></canvas></div>
-       <div class="training-chart-card"><h4>Precision Curve</h4><canvas id="trainPrecisionChart"></canvas></div>
-       <div class="training-chart-card"><h4>Recall Curve</h4><canvas id="trainRecallChart"></canvas></div>
-       <div class="training-chart-card"><h4>F1 Curve</h4><canvas id="trainF1Chart"></canvas></div>
-      </div>
-     </div>
-    </div>
-    <!-- Generated Result Images -->
-    <div class="card" style="margin-top:18px">
-     <div class="card-header">Generated Result Images</div>
-     <div class="card-body">
-      <div class="training-artifacts">
-       <div class="training-artifact" id="trainArtResults"><img alt="YOLO results plot"></div>
-       <div class="training-artifact" id="trainArtPR"><img alt="PR curve"></div>
-       <div class="training-artifact" id="trainArtF1"><img alt="F1 curve"></div>
-       <div class="training-artifact" id="trainArtConfusion"><img alt="Confusion matrix"></div>
-      </div>
-      <p class="training-artifact-hint" id="trainArtHint">Result images appear here after YOLO creates them.</p>
-     </div>
-    </div>
-   </div>
-   <div>
-    <!-- Logs -->
-    <div class="card">
-     <div class="card-header">Training Logs</div>
-     <div class="card-body" style="padding:0">
-      <div class="training-logbox" id="trainLogs">Waiting for logs...</div>
-     </div>
-    </div>
-    <!-- Output paths -->
-    <div class="card" style="margin-top:18px">
-     <div class="card-header">Output Paths</div>
-     <div class="card-body">
-      <p style="font-size:.88rem;color:var(--muted)">Best model:<br><strong id="trainBestPath" style="color:var(--primary-dark);word-break:break-all">runs/detect/train/weights/best.pt</strong></p>
-      <p style="font-size:.88rem;color:var(--muted);margin-top:12px">Last model:<br><strong id="trainLastPath" style="color:var(--primary-dark);word-break:break-all">runs/detect/train/weights/last.pt</strong></p>
-     </div>
-    </div>
-   </div>
-  </div>
- </div>
-</section>
-
-<!-- ══ DATASET PAGE ══════════════════════ -->
-<section class="page" id="page-dataset">
- <div class="container">
-  <h2 class="section-title">Dataset Checker</h2>
-  <div class="disclaimer">⚕️ This system is for educational and research demonstration only. It is not for clinical diagnosis.</div>
-  <div id="datasetContainer"><div class="empty-state">Loading dataset status...</div></div>
- </div>
-</section>
 
 <!-- ══ ABOUT PAGE ═══════════════════════ -->
 <section class="page" id="page-about">

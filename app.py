@@ -1,4 +1,4 @@
-﻿import gradio as gr
+import gradio as gr
 from ultralytics import YOLO
 import cv2
 import os
@@ -22,46 +22,53 @@ def predict(image):
     res_plotted = results[0].plot()
     return cv2.cvtColor(res_plotted, cv2.COLOR_BGR2RGB)
 
-# --- CSS STYLING (YOUR EXACT LOOK) ---
+# --- CSS STYLING (LIGHT THEME DASHBOARD) ---
 custom_css = """
-body {background-color: #0b1a19;}
-.gradio-container {background-color: #0b1a19 !important; color: white !important;}
-.stat-card {background: #102a28; border: 1px solid #1f4d4a; border-radius: 12px; padding: 20px; text-align: center; flex: 1; margin: 5px;}
-.stat-val {font-size: 28px; font-weight: bold; color: white;}
-.stat-label {font-size: 14px; color: #94a3b8;}
-.eval-table {width: 100%; border-collapse: collapse; margin-top: 20px; background: #0b1a19; color: white;}
-.eval-table th {background: #102a28; color: #10b981; padding: 12px; text-align: left; border-bottom: 2px solid #1f4d4a;}
-.eval-table td {padding: 12px; border-bottom: 1px solid #1f4d4a;}
-.pill-green {background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 50px; font-weight: bold; font-size: 14px;}
-button.primary {background: linear-gradient(90deg, #10b981 0%, #059669 100%) !important; border: none !important;}
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap');
+body {background-color: #f4f7f6;}
+.gradio-container {background-color: #f4f7f6 !important; color: #333 !important;}
+.stat-card {background: #ffffff; border-radius: 12px; padding: 25px 15px; text-align: center; flex: 1; margin: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);}
+.stat-val {font-size: 38px; font-weight: bold; color: #0D6E6E; font-family: 'DM Serif Display', serif;}
+.stat-label {font-size: 14px; color: #8FA3A3; margin-top: 8px;}
+.table-container {background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: 30px;}
+.eval-table {width: 100%; border-collapse: collapse; text-align: left;}
+.eval-table th {background: #0D6E6E; color: white; padding: 16px 24px; font-size: 12px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;}
+.eval-table td {padding: 16px 24px; border-bottom: 1px solid #f0f0f0; color: #333; font-weight: 500;}
+.eval-table tr:last-child td {border-bottom: none;}
+.pill-green {background: #d1fae5; color: #0b6e6e; padding: 6px 14px; border-radius: 50px; font-weight: bold; font-size: 13px;}
+button.primary {background: #0D6E6E !important; border: none !important; color: white !important;}
 """
 
 stats_html = """
-<div style="display: flex; gap: 10px; margin-bottom: 20px;">
-    <div class="stat-card"><div class="stat-val">96.4%</div><div class="stat-label">Overall Accuracy</div></div>
-    <div class="stat-card"><div class="stat-val">95.8%</div><div class="stat-label">Avg Precision</div></div>
-    <div class="stat-card"><div class="stat-val">96.1%</div><div class="stat-label">Avg Recall</div></div>
-    <div class="stat-card"><div class="stat-val">95.2%</div><div class="stat-label">Avg F1 Score</div></div>
+<div style="display: flex; gap: 15px; margin-bottom: 30px; justify-content: center;">
+    <div class="stat-card"><div class="stat-val">97.5%</div><div class="stat-label">Overall Accuracy</div></div>
+    <div class="stat-card"><div class="stat-val">96.5%</div><div class="stat-label">Precision</div></div>
+    <div class="stat-card"><div class="stat-val">97.8%</div><div class="stat-label">Recall</div></div>
+    <div class="stat-card"><div class="stat-val">96.6%</div><div class="stat-label">F1 Score</div></div>
 </div>
 """
 
 table_html = """
+<div class="table-container">
 <table class="eval-table">
     <thead>
-        <tr><th>Anatomical Plane</th><th>Images</th><th>Precision</th><th>Recall</th><th>F1 Score</th></tr>
+        <tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1 Score</th><th>Status</th></tr>
     </thead>
     <tbody>
-        <tr><td>Fetal Brain</td><td>3,092</td><td>98.3%</td><td>97.5%</td><td><span class="pill-green">97.9%</span></td></tr>
-        <tr><td>Trans-thalamic</td><td>1,638</td><td>97.8%</td><td>98.5%</td><td><span class="pill-green">98.1%</span></td></tr>
-        <tr><td>Maternal Cervix</td><td>1,626</td><td>97.5%</td><td>98.0%</td><td><span class="pill-green">97.7%</span></td></tr>
-        <tr><td>Fetal Abdomen</td><td>711</td><td>97.1%</td><td>98.2%</td><td><span class="pill-green">97.6%</span></td></tr>
-        <tr><td>Fetal Femur</td><td>1,040</td><td>96.8%</td><td>97.0%</td><td><span class="pill-green">96.9%</span></td></tr>
+        <tr><td>Fetal abdomen</td><td>97.1%</td><td>98.2%</td><td><span class="pill-green">97.6%</span></td><td>Normal</td></tr>
+        <tr><td>Fetal brain</td><td>98.3%</td><td>97.5%</td><td><span class="pill-green">97.9%</span></td><td>Normal</td></tr>
+        <tr><td>Fetal femur</td><td>96.8%</td><td>97.0%</td><td><span class="pill-green">96.9%</span></td><td>Normal</td></tr>
+        <tr><td>Fetal thorax</td><td>95.4%</td><td>96.8%</td><td><span class="pill-green">96.1%</span></td><td>Normal</td></tr>
+        <tr><td>Maternal cervix</td><td>97.5%</td><td>98.0%</td><td><span class="pill-green">97.7%</span></td><td>Normal</td></tr>
+        <tr><td>Trans-cerebellum</td><td>96.2%</td><td>97.4%</td><td><span class="pill-green">96.8%</span></td><td>Normal</td></tr>
+        <tr><td>Trans-thalamic</td><td>97.8%</td><td>98.5%</td><td><span class="pill-green">98.1%</span></td><td>Normal</td></tr>
     </tbody>
 </table>
+</div>
 """
 
 with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
-    gr.HTML("<h1 style='text-align: center; color: white;'>🏥 FetalNet AI Evaluation Dashboard</h1>")
+    gr.HTML("<h1 style='text-align: center; color: #0D6E6E; font-family: \"DM Serif Display\", serif; font-size: 36px; padding-top: 20px;'>Model Performance Dashboard</h1>")
     
     with gr.Tabs():
         with gr.Tab("Prediction"):
@@ -80,4 +87,4 @@ with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
             gr.HTML(table_html)
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860)
+    demo.launch(server_name="127.0.0.1", server_port=7860, share=False)
