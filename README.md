@@ -1,3 +1,12 @@
+---
+title: FetalNet AI
+emoji: 🔬
+colorFrom: green
+colorTo: blue
+sdk: docker
+pinned: false
+---
+
 # 🔬 FetalNet AI - Fetal Ultrasound Analysis
 
 <div align="center">
