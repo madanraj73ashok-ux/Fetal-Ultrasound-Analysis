@@ -4,3 +4,4 @@ numpy
 pandas
 ultralytics
 opencv-python-headless
+gradio

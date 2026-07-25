@@ -22,15 +22,59 @@ def predict(image):
     res_plotted = results[0].plot()
     return cv2.cvtColor(res_plotted, cv2.COLOR_BGR2RGB)
 
-# --- CSS STYLING (LIGHT THEME DASHBOARD) ---
+# --- CSS STYLING (GLASSMORPHIC THEME) ---
 custom_css = """
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap');
-body {background-color: #f4f7f6;}
-.gradio-container {background-color: #f4f7f6 !important; color: #333 !important;}
-.stat-card {background: #ffffff; border-radius: 12px; padding: 25px 15px; text-align: center; flex: 1; margin: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);}
+body {
+  background: radial-gradient(circle at 50% 50%, rgba(240, 244, 244, 0.1) 0%, rgba(212, 224, 224, 0.3) 100%) !important;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+}
+.gradio-container {
+  background: transparent !important;
+  color: #333 !important;
+}
+#three-bg-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(135deg, #f0f4f4 0%, #d4e0e0 100%);
+}
+.block {
+  background: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 15px rgba(10, 79, 79, 0.08) !important;
+}
+.stat-card {
+  background: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  border-radius: 12px;
+  padding: 25px 15px;
+  text-align: center;
+  flex: 1;
+  margin: 10px;
+  box-shadow: 0 4px 15px rgba(10, 79, 79, 0.08);
+}
 .stat-val {font-size: 38px; font-weight: bold; color: #0D6E6E; font-family: 'DM Serif Display', serif;}
 .stat-label {font-size: 14px; color: #8FA3A3; margin-top: 8px;}
-.table-container {background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: 30px;}
+.table-container {
+  background: rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(10, 79, 79, 0.08);
+  margin-top: 30px;
+}
 .eval-table {width: 100%; border-collapse: collapse; text-align: left;}
 .eval-table th {background: #0D6E6E; color: white; padding: 16px 24px; font-size: 12px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;}
 .eval-table td {padding: 16px 24px; border-bottom: 1px solid #f0f0f0; color: #333; font-weight: 500;}
@@ -68,6 +112,136 @@ table_html = """
 """
 
 with gr.Blocks(theme=gr.themes.Soft(), css=custom_css) as demo:
+    gr.HTML("""
+    <canvas id="three-bg-canvas"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+    (function () {
+      const canvas = document.getElementById('three-bg-canvas');
+      if (!canvas) return;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+      camera.position.z = 220;
+      camera.position.y = 80;
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+      const renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        alpha: true,
+        antialias: true
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+
+      const SEPARATION = 12;
+      const AMOUNTX = 65;
+      const AMOUNTY = 50;
+
+      const numParticles = AMOUNTX * AMOUNTY;
+      const positions = new Float32Array(numParticles * 3);
+      const colors = new Float32Array(numParticles * 3);
+
+      const color1 = new THREE.Color(0x0d6e6e);
+      const color2 = new THREE.Color(0x00c9a7);
+
+      let i = 0;
+      for (let ix = 0; ix < AMOUNTX; ix++) {
+        for (let iy = 0; iy < AMOUNTY; iy++) {
+          positions[i] = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2;
+          positions[i + 1] = 0;
+          positions[i + 2] = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
+
+          const ratio = (ix / AMOUNTX) * 0.7 + (iy / AMOUNTY) * 0.3;
+          const mixedColor = new THREE.Color().lerpColors(color1, color2, ratio);
+
+          colors[i] = mixedColor.r;
+          colors[i + 1] = mixedColor.g;
+          colors[i + 2] = mixedColor.b;
+
+          i += 3;
+        }
+      }
+
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+      function createCircleTexture() {
+        const size = 64;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.8)');
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, size, size);
+        return new THREE.CanvasTexture(canvas);
+      }
+
+      const material = new THREE.PointsMaterial({
+        size: 2.8,
+        map: createCircleTexture(),
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.85,
+        depthWrite: false
+      });
+
+      const particles = new THREE.Points(geometry, material);
+      scene.add(particles);
+
+      let mouseX = 0;
+      let mouseY = 0;
+      let targetX = 0;
+      let targetY = 0;
+
+      window.addEventListener('mousemove', (event) => {
+        mouseX = (event.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+        mouseY = (event.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+      });
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      let count = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+        count += 0.035;
+
+        const positions = particles.geometry.attributes.position.array;
+        let i = 0;
+        for (let ix = 0; ix < AMOUNTX; ix++) {
+          for (let iy = 0; iy < AMOUNTY; iy++) {
+            positions[i + 1] = 
+              Math.sin(ix * 0.12 + count) * 16 +
+              Math.sin(iy * 0.18 + count * 0.8) * 12;
+            i += 3;
+          }
+        }
+        particles.geometry.attributes.position.needsUpdate = true;
+
+        targetX += (mouseX - targetX) * 0.05;
+        targetY += (mouseY - targetY) * 0.05;
+
+        camera.position.x += (targetX * 60 - camera.position.x) * 0.03;
+        camera.position.y += ((80 - targetY * 40) - camera.position.y) * 0.03;
+        camera.lookAt(scene.position);
+
+        renderer.render(scene, camera);
+      }
+      animate();
+    })();
+    </script>
+    """)
+
     gr.HTML("<h1 style='text-align: center; color: #0D6E6E; font-family: \"DM Serif Display\", serif; font-size: 36px; padding-top: 20px;'>Model Performance Dashboard</h1>")
     
     with gr.Tabs():
