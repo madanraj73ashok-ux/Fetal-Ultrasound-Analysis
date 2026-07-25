@@ -11,7 +11,8 @@
   --transition:0.3s cubic-bezier(0.4,0,0.2,1);
 }
 html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font);background:radial-gradient(circle at 50% 50%, rgba(240, 244, 244, 0.1) 0%, rgba(212, 224, 224, 0.3) 100%);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+#three-bg-canvas{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-2;pointer-events:none;background:linear-gradient(135deg, #f0f4f4 0%, #d4e0e0 100%)}
 .container{max-width:1200px;margin:0 auto;padding:0 24px}
 
 /* Animations */
@@ -52,7 +53,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .section-title{font-family:var(--font-display);font-size:1.5rem;color:var(--primary-dark);margin-bottom:24px}
 
 /* Cards */
-.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.card{background:rgba(255,255,255,0.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.45);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
 .card-header{padding:16px 24px;font-family:var(--font-display);font-size:1.05rem;color:var(--primary-dark);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
 .card-body{padding:24px}
 
@@ -68,7 +69,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 
 /* Stats grid */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
-.stat-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;text-align:center;transition:var(--transition)}
+.stat-card{background:rgba(255,255,255,0.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.45);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;text-align:center;transition:var(--transition)}
 .stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
 .stat-value{font-family:var(--font-display);font-size:2rem;color:var(--primary-dark);line-height:1;margin-bottom:8px}
 .stat-label{font-size:.85rem;color:var(--muted)}
